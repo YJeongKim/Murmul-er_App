@@ -122,9 +122,4 @@
         </LinearLayout>
     </LinearLayout>
 
-
-    <LinearLayout
-        android:layout_width=""
-        android:layout_height=""
 </androidx.drawerlayout.widget.DrawerLayout>
-
