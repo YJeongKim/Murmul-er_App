@@ -18,6 +18,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -103,6 +104,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         editSearch = findViewById(R.id.editText);
         btnSearch = findViewById(R.id.btnSearch);
 
+        editSearch.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                //Enter key Action
+                if ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN)) {
+                    btnSearch.callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         Geocoder geocoder = new Geocoder(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
@@ -111,19 +124,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button button3 = findViewById(R.id.button3);
 
         button3.setOnClickListener(new Button.OnClickListener()
-        { @Override
-        public void onClick(View view)
         {
-            PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
-            try {
-                Intent intent = intentBuilder.build(MainActivity.this);
-                startActivityForResult(intent,PLACE_PICKER_REQUEST);
-            } catch (GooglePlayServicesRepairableException e) {
-                e.printStackTrace();
-            } catch (GooglePlayServicesNotAvailableException e) {
-                e.printStackTrace();
+            @Override
+            public void onClick(View view)
+            {
+                PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+                try {
+                    Intent intent = intentBuilder.build(MainActivity.this);
+                    startActivityForResult(intent,PLACE_PICKER_REQUEST);
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                }
             }
-        }
         });
 
     }
@@ -186,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     };
 
     private void startLocationUpdates() {
-
         if (!checkLocationServicesStatus()) {
             showDialogForLocationServiceSetting();
         } else {
@@ -228,7 +241,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void searchLocation(View view) {
         String keyword = editSearch.getText().toString();
-        Toast.makeText(view.getContext(), keyword, Toast.LENGTH_LONG).show();
+        LatLng searchLatLng = getAddressCoordinate(keyword);
+        if (searchLatLng != null) {
+            if (currentMarker != null) currentMarker.remove();
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(searchLatLng);
+
+            String markerTitle = getCurrentAddress(searchLatLng);
+            String markerSnippet = "위도 : " + searchLatLng.latitude + ", 경도 : " + searchLatLng.longitude;
+
+            markerOptions.title(markerTitle);
+            markerOptions.snippet(markerSnippet);
+            markerOptions.draggable(true);
+
+            currentMarker = mMap.addMarker(markerOptions);
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(searchLatLng);
+            mMap.moveCamera(cameraUpdate);
+        }
     }
 
     public String getCurrentAddress(LatLng latlng) {
@@ -244,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (IOException ioException) {
             //네트워크 문제
             Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
-            return "징오코더 서비스 사용불가";
+            return "지오코더 서비스 사용불가";
         } catch (IllegalArgumentException illegalArgumentException) {
             Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "잘못된 GPS 좌표";
@@ -257,6 +287,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Address address = addresses.get(0);
             return address.getAddressLine(0).toString();
         }
+    }
+
+    public LatLng getAddressCoordinate(String strAddress) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = null;
+        LatLng latLng = null;
+
+        try {
+            addresses = geocoder.getFromLocationName(
+                    strAddress,
+                    1
+            );
+        } catch (IOException ioException) {
+            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+        } catch (IllegalArgumentException illegalArgumentException) {
+            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+        }
+
+        if (addresses == null || addresses.size() == 0) {
+            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+        } else {
+            Address address = addresses.get(0);
+            latLng = new LatLng(address.getLatitude(), address.getLongitude());
+        }
+        return latLng;
     }
 
     public boolean checkLocationServicesStatus() {
@@ -364,7 +419,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     // GPS 활성화를 위한 메서드
     private void showDialogForLocationServiceSetting() {
 
@@ -389,7 +443,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         builder.create().show();
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
