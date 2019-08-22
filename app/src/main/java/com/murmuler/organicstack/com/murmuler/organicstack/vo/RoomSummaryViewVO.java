@@ -2,6 +2,7 @@ package com.murmuler.organicstack.com.murmuler.organicstack.vo;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.List;
 
 public class RoomSummaryViewVO {
     private int roomId;
@@ -23,10 +24,11 @@ public class RoomSummaryViewVO {
     private Date writeDate;
     private int views;
     private String roomImg;
+    private List<String> roomOptions;
 
     public RoomSummaryViewVO() { }
 
-    public RoomSummaryViewVO(int roomId, BigDecimal latitude, BigDecimal longitude, String postType, String title, String sido, String sigungu, String roadname, int periodNum, String periodUnit, String roomType, String rentType, double area, int deposit, int monthlyCost, int manageCost, Date writeDate, int views, String roomImg) {
+    public RoomSummaryViewVO(int roomId, BigDecimal latitude, BigDecimal longitude, String postType, String title, String sido, String sigungu, String roadname, int periodNum, String periodUnit, String roomType, String rentType, double area, int deposit, int monthlyCost, int manageCost, Date writeDate, int views, String roomImg, List<String> roomOptions) {
         this.roomId = roomId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -46,6 +48,7 @@ public class RoomSummaryViewVO {
         this.writeDate = writeDate;
         this.views = views;
         this.roomImg = roomImg;
+        this.roomOptions = roomOptions;
     }
 
     public int getRoomId() {
@@ -198,5 +201,39 @@ public class RoomSummaryViewVO {
 
     public void setRoomImg(String roomImg) {
         this.roomImg = roomImg;
+    }
+
+    public List<String> getRoomOptions() {
+        return roomOptions;
+    }
+
+    public void setRoomOptions(List<String> roomOptions) {
+        this.roomOptions = roomOptions;
+    }
+
+    @Override
+    public String toString() {
+        return "RoomSummaryViewVO{" +
+                "roomId=" + roomId +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", postType='" + postType + '\'' +
+                ", title='" + title + '\'' +
+                ", sido='" + sido + '\'' +
+                ", sigungu='" + sigungu + '\'' +
+                ", roadname='" + roadname + '\'' +
+                ", periodNum=" + periodNum +
+                ", periodUnit='" + periodUnit + '\'' +
+                ", roomType='" + roomType + '\'' +
+                ", rentType='" + rentType + '\'' +
+                ", area=" + area +
+                ", deposit=" + deposit +
+                ", monthlyCost=" + monthlyCost +
+                ", manageCost=" + manageCost +
+                ", writeDate=" + writeDate +
+                ", views=" + views +
+                ", roomImg='" + roomImg + '\'' +
+                ", roomOptions=" + roomOptions +
+                '}';
     }
 }
