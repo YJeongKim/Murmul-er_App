@@ -122,13 +122,12 @@
             android:layout_height="60dp"
             android:background="#b6e3f9"
             >
-            <Button
-                android:id="@+id/button3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="PlacePicker"
-                android:text="PlacePicker"/>
         </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:textSize="10dp"/>
     </LinearLayout>
 
 </LinearLayout>
