@@ -14,13 +14,13 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+//        setContentView(R.layout.activity_splash);
 
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(imageView);
-        Glide.with(this).load(R.raw.house).diskCacheStrategy(DiskCacheStrategy.SOURCE).into(imageViewTarget);
+//        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+//        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(imageView);
+//        Glide.with(this).load(R.raw.house).diskCacheStrategy(DiskCacheStrategy.SOURCE).into(imageViewTarget);
 
-        startLoading();
+//        startLoading();
     }
 
     private void startLoading() {
