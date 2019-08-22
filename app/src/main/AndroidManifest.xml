@@ -21,7 +21,8 @@
 
         <activity android:name=".SplashActivity"/>
         <activity android:name=".MainActivity"/>
-        <activity android:name=".MainViewActivity"/>
+        <activity android:name=".MainViewActivity"
+            android:windowSoftInputMode="adjustPan"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

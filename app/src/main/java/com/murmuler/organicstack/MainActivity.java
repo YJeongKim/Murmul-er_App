@@ -43,6 +43,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -76,6 +77,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback {
@@ -108,25 +110,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     EditText editSearch;
     @BindView(R.id.btnSearch)
     ImageButton btnSearch;
+    @BindView(R.id.btnSlide)
     ImageButton btnSlide;
+    @BindView(R.id.listView)
     ListView listView;
     LinearLayout popupLayout;
+
+    @BindView(R.id.botMain)
+    ImageButton botMain;
+    @BindView(R.id.botSearch)
+    ImageButton botSearch;
+    @BindView(R.id.botLike)
+    ImageButton botLike;
+    @BindView(R.id.botMore)
+    ImageButton botMore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         setContentView(R.layout.activity_main);
-        btnSlide = findViewById(R.id.btnSlide);
-        listView = findViewById(R.id.listView);
-
-        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"방1", "방2", "방3", "방4"}));
-    }
-
-    @OnClick(R.id.btnSearch)
-    public void clickSearch(View view) {
         ButterKnife.bind(this);
+        Glide.with(this).load(R.drawable.bottom_main).into(botMain);
+        Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
+        Glide.with(this).load(R.drawable.bottom_like).into(botLike);
+        Glide.with(this).load(R.drawable.bottom_more).into(botMore);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"방1", "방2", "방3", "방4"}));
 
         currentMarker = new ArrayList<>();
 
