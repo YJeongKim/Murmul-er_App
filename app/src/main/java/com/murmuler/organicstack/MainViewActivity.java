@@ -95,10 +95,11 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
     }
     @OnClick(R.id.botSearch)
     public void clickSearch(View v) {
-        Glide.with(this).load(R.drawable.bottom_main).into(botMain);
-        Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
-        Glide.with(this).load(R.drawable.bottom_like).into(botLike);
-        Glide.with(this).load(R.drawable.bottom_more).into(botMore);
+//        Glide.with(this).load(R.drawable.bottom_main).into(botMain);
+//        Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
+//        Glide.with(this).load(R.drawable.bottom_like).into(botLike);
+//        Glide.with(this).load(R.drawable.bottom_more).into(botMore);
+        startActivity(new Intent(MainViewActivity.this, MainActivity.class));
     }
     @OnClick(R.id.botLike)
     public void clickLike(View v) {
