@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/layout_main"
     tools:context=".MainActivity"
     android:orientation="vertical"
     app:umanoDragView="@id/dragView"
@@ -40,6 +42,7 @@
             <ImageButton
                 android:id="@+id/btnSearch"
                 android:layout_weight="0.15"
+                android:onClick="searchLocation"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:background="#FFFFFF"
@@ -132,7 +135,9 @@
             android:id="@+id/map_fragment"
             android:layout_width="match_parent"
             android:layout_height="430dp"
-            android:name="com.naver.maps.map.MapFragment" />
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            map:cameraZoom="16"
+            map:mapType="normal"/>
 
     </LinearLayout>
 

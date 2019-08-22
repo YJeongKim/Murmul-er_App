@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/nav_search"
+            android:title="방 검색" />
+        <item
+            android:id="@+id/nav_like"
+            android:icon="@drawable/nav_like_empty"
+            android:title="관심목록"/>
+    </group>
+</menu>
