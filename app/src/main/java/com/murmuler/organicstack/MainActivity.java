@@ -10,6 +10,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -21,7 +23,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -34,7 +35,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -52,18 +52,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.murmuler.organicstack.com.murmuler.organicstack.vo.RoomSummaryViewVO;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -175,10 +172,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             @Override
             public void onMapClick(LatLng latLng) {
 
+            }
+        });
+
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
             }
         });
     }
@@ -247,22 +250,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng searchLatLng = getAddressCoordinate(keyword);
         if (searchLatLng != null) {
             if (currentMarker != null) currentMarker.remove();
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(searchLatLng);
+//            MarkerOptions markerOptions = new MarkerOptions();
+//            markerOptions.position(searchLatLng);
 
-            String markerTitle = getCurrentAddress(searchLatLng);
-            String markerSnippet = "위도 : " + searchLatLng.latitude + ", 경도 : " + searchLatLng.longitude;
+//            String markerTitle = getCurrentAddress(searchLatLng);
+//            String markerSnippet = "위도 : " + searchLatLng.latitude + ", 경도 : " + searchLatLng.longitude;
 
-            markerOptions.title(markerTitle);
-            markerOptions.snippet(markerSnippet);
-            markerOptions.draggable(true);
+//            markerOptions.title(markerTitle);
+//            markerOptions.snippet(markerSnippet);
+//            markerOptions.draggable(true);
 
-            currentMarker = mMap.addMarker(markerOptions);
+//            currentMarker = mMap.addMarker(markerOptions);
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(searchLatLng);
             mMap.moveCamera(cameraUpdate);
 
-            makeRequest(mMap.getProjection().getVisibleRegion().latLngBounds);
+            showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
         }
     }
 
@@ -333,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerOptions.position(currentLatLng);
         markerOptions.title(markerTitle);
         markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(true);
+        markerOptions.draggable(false);
 
         currentMarker = mMap.addMarker(markerOptions);
 
@@ -352,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerOptions.position(DEFAULT_LOCATION);
         markerOptions.title(markerTitle);
         markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(true);
+        markerOptions.draggable(false);
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         currentMarker = mMap.addMarker(markerOptions);
 
@@ -464,9 +467,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
     }
-//    String[] temp = southWest.substring(1, southWest.length()-1).split(", ");
 
-    public void makeRequest (LatLngBounds latLngBounds) {
+    public void showRoomList (LatLngBounds latLngBounds) {
         String[] southWestSpl = latLngBounds.southwest.toString().substring(9).split(",");
         String southWest = southWestSpl[0] + ", " + southWestSpl[1];
         String[] northEastSpl = latLngBounds.northeast.toString().substring(9).split(",");
@@ -482,11 +484,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     @Override
                     public void onResponse(String response) {
-                        JsonParser jsonParser =  new JsonParser();
-                        Object obj = jsonParser.parse(response);
-                        JsonObject jsonObject = (JsonObject) obj;
-                        String temp = jsonObject.get("item0").toString();
-                        System.out.println(temp.substring(2, temp.length() - 2));
+                        List<RoomSummaryViewVO> roomList = getRoomList(response);
+                        if (roomList == null) {
+                            Toast.makeText(getApplicationContext(), "검색 된 매물이 없습니다.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if (currentMarker != null) currentMarker.remove();
+                        for (RoomSummaryViewVO room : roomList) {
+                            if (room.getPostType().equals("게시중")) {
+                                LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
+
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(position);
+                                markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
+                                markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
+                                markerOptions.draggable(false);
+
+                                switch (room.getRoomType()) {
+                                    case "아파트":
+                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_ap)));
+                                        break;
+                                    case "오피스텔":
+                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_of)));
+                                        break;
+                                    case "원룸":
+                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_or)));
+                                        break;
+                                    case "투룸":
+                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_tr)));
+                                        break;
+                                    case "빌라":
+                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
+                                        break;
+                                }
+                                currentMarker = mMap.addMarker(markerOptions);
+                            }
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -504,6 +537,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
         request.setShouldCache(false);
         requestQueue.add(request);
+    }
+
+    public Bitmap resizeMarker(int id) {
+        Bitmap bitmap = null;
+        Bitmap smallMarker = null;
+        bitmap = ((BitmapDrawable) getResources().getDrawable(id)).getBitmap();
+        return Bitmap.createScaledBitmap(bitmap, 100, 120, false);
     }
 
     class Utf8StringRequest extends StringRequest {
@@ -528,5 +568,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return Response.error(new ParseError(e));
             }
         }
+    }
+
+    public List<RoomSummaryViewVO> getRoomList(String response) {
+        List<RoomSummaryViewVO> roomList = new ArrayList<>();
+        JsonParser jsonParser =  new JsonParser();
+
+        Object obj = jsonParser.parse(response);
+        JsonObject jsonObj = (JsonObject) obj;
+
+        for (int i = 0; i < jsonObj.size(); i++) {
+            String temp = jsonObj.get("item" + i).toString();
+            Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
+
+            JsonObject jsonObject = (JsonObject) object;
+
+            RoomSummaryViewVO roomSummaryViewVO = new RoomSummaryViewVO();
+            List<String> roomOptions = new ArrayList<>();
+
+            roomSummaryViewVO.setRoomId(Integer.parseInt(jsonObject.get("roomId").getAsString()));
+            roomSummaryViewVO.setLatitude(jsonObject.get("latitude").getAsBigDecimal());
+            roomSummaryViewVO.setLongitude(jsonObject.get("longitude").getAsBigDecimal());
+            roomSummaryViewVO.setPostType(jsonObject.get("postType").getAsString());
+            roomSummaryViewVO.setTitle(jsonObject.get("title").getAsString());
+            String[] address = (jsonObject.get("address").getAsString().split(" "));
+            roomSummaryViewVO.setSido(address[0]);
+            roomSummaryViewVO.setSigungu(address[1]);
+            roomSummaryViewVO.setRoadname(address[2]);
+            roomSummaryViewVO.setPeriodNum(Integer.parseInt(jsonObject.get("period").getAsString().replaceAll("[^0-9]", "")));
+            roomSummaryViewVO.setPeriodUnit(jsonObject.get("period").getAsString().replaceAll("[0-9]", ""));
+            roomSummaryViewVO.setPostType(jsonObject.get("postType").getAsString());
+            roomSummaryViewVO.setRoomType(jsonObject.get("roomType").getAsString());
+            roomSummaryViewVO.setRentType(jsonObject.get("rentType").getAsString());
+            roomSummaryViewVO.setArea(jsonObject.get("area").getAsDouble());
+            roomSummaryViewVO.setDeposit(jsonObject.get("deposit").getAsInt());
+            roomSummaryViewVO.setMonthlyCost(jsonObject.get("monthlyCost").getAsInt());
+            roomSummaryViewVO.setManageCost(jsonObject.get("manageCost").getAsInt());
+            roomSummaryViewVO.setWriteDate(Date.valueOf(jsonObject.get("writeDate").getAsString()));
+            roomSummaryViewVO.setViews(jsonObject.get("views").getAsInt());
+            roomSummaryViewVO.setRoomImg(jsonObject.get("roomImg").getAsString());
+            for (JsonElement e : jsonObject.get("roomOptions").getAsJsonArray()) {
+                roomOptions.add(e.getAsString());
+            }
+            roomSummaryViewVO.setRoomOptions(roomOptions);
+            roomList.add(roomSummaryViewVO);
+        }
+        return roomList;
     }
 }
