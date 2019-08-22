@@ -69,6 +69,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.BindView;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
-
+    private static final int PLACE_PICKER_REQUEST=1;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
 
@@ -94,12 +96,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest locationRequest;
     private Location location;
 
-    private View mLayout;
-
-    private static final int PLACE_PICKER_REQUEST=1;
-
-    private EditText editSearch;
-    private ImageButton btnSearch;
+    @BindView(R.id.layout_main)
+    View mLayout;
+    @BindView(R.id.editText)
+    EditText editSearch;
+    @BindView(R.id.btnSearch)
+    ImageButton btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setContentView(R.layout.activity_main);
 
-        mLayout = findViewById(R.id.layout_main);
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest();
@@ -121,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        editSearch = findViewById(R.id.editText);
-        btnSearch = findViewById(R.id.btnSearch);
 
         editSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
