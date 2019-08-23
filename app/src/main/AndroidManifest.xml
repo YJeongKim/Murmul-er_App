@@ -21,9 +21,11 @@
 
         <activity android:name=".SplashActivity"/>
         <activity android:name=".MainActivity"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan"
+            android:noHistory="true"/>
         <activity android:name=".MainViewActivity"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan"
+            android:noHistory="true"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
