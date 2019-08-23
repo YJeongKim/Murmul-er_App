@@ -4,10 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,6 +31,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -65,6 +69,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.murmuler.organicstack.com.murmuler.organicstack.vo.RoomSummaryViewVO;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -112,9 +117,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSearch;
     @BindView(R.id.btnSlide)
     ImageButton btnSlide;
+    @BindView(R.id.btnBuildingType)
+    Button btnBuildingType;
     @BindView(R.id.listView)
     ListView listView;
+    @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
+    @BindView(R.id.searchBar)
+    LinearLayout searchBar;
 
     @BindView(R.id.botMain)
     ImageButton botMain;
@@ -668,25 +678,48 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void clickBuildingType(View view) {
-        Toast.makeText(view.getContext(), "건물유형", Toast.LENGTH_LONG).show();
+    public void clickFilter(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.popup_building, popupLayout, true);
+        int layoutId = R.id.popupLayout;
+        switch (view.getId()) {
+            case R.id.btnBuildingType:
+                layoutId = R.layout.popup_building;
+                break;
+            case R.id.btnPeriod:
+                layoutId = R.layout.popup_period;
+                break;
+            case R.id.btnDeposit:
+                layoutId = R.layout.popup_deposit;
+                break;
+            case R.id.btnMonthlyCost:
+                layoutId = R.layout.popup_monthly;
+                break;
+            case R.id.btnOption:
+                layoutId = R.layout.popup_option;
+                break;
+        }
+        popupLayout.removeAllViews();
+        popupLayout.addView(inflater.inflate(layoutId, null));
+
+//        LinearLayout.LayoutParams paramll = new LinearLayout.LayoutParams
+//                (LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+//        paramll.setMargins(0, 260, 0, 0);
+//        addContentView((inflater.inflate(layoutId, null)), paramll);
+
+//        if(searchBar.getVisibility() == View.VISIBLE) {
+//            searchBar.setVisibility(View.GONE);
+//        }
+//        else {
+//            searchBar.setVisibility(View.VISIBLE);
+//        }
     }
 
-    public void clickPeriod(View view) {
-        Toast.makeText(view.getContext(), "임대기간", Toast.LENGTH_LONG).show();
+    public void clickCancel(View view) {
+
     }
 
-    public void clickDeposit(View view) {
-        Toast.makeText(view.getContext(), "보증금", Toast.LENGTH_LONG).show();
-    }
+    public void ClickApply(View view) {
 
-    public void clickMonthlyCost(View view) {
-        Toast.makeText(view.getContext(), "월세", Toast.LENGTH_LONG).show();
-    }
-    public void clickOption(View view) {
-        Toast.makeText(view.getContext(), "옵션", Toast.LENGTH_LONG).show();
     }
 
 }
