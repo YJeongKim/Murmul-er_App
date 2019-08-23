@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         loginView.addJavascriptInterface(new AndroidBridge(), "login");
-        loginView.loadUrl("http://192.168.30.242:8089/mobile");
+        loginView.loadUrl("http://www.murmul-er.com/mobile");
     }
 
     class MyWebClient extends WebViewClient {

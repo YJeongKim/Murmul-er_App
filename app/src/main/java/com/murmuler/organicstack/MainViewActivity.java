@@ -26,7 +26,7 @@ import butterknife.OnClick;
 
 
 public class MainViewActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    private static final String ROOT_CONTEXT = "http://192.168.30.242:8089/";
+    private static final String ROOT_CONTEXT = "http://www.murmul-er.com/";
     private static final int MAIN_PAGE = 1;
     private static final int LIKE_PAGE = 2;
 

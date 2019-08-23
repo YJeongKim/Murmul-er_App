@@ -82,6 +82,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
-    private boolean markerFlag;
     private ArrayList<Marker> currentMarker;
+    private ArrayList<RoomSummaryViewVO> currentRoomList;
 
     private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
     private static RequestQueue requestQueue;
@@ -112,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     String[] REQUIRED_PERMISSIONS = { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
-    private Location mCurrentLocation;
     private LatLng currentPosition;
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -132,12 +132,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
     @BindView(R.id.gridView)
-    ListView listView;
-    @BindView(R.id.gridView)
     GridView gridView;
+    @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
-//    @BindView(R.id.searchBar)
-//    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -168,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         gridView = findViewById(R.id.gridView);
 
         currentMarker = new ArrayList<>();
+        currentRoomList = new ArrayList<>();
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
@@ -279,11 +277,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+            }
+        });
 
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
+
+        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
             }
         });
 
@@ -291,6 +302,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+                System.out.println("marker size : " + currentMarker.size());
+                System.out.println("roomList size : " + currentRoomList.size());
             }
         });
 
@@ -309,7 +322,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String markerSnippet = "위도 : " + location.getLatitude() + ", 경도 : " + location.getLongitude();
 
                 setCurrentLocation(location, markerTitle, markerSnippet);
-                mCurrentLocation = location;
 
                 if(!editSearch.getText().equals("")) {
                     btnSearch.performClick();
@@ -366,7 +378,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (searchLatLng != null) {
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(searchLatLng);
             mMap.moveCamera(cameraUpdate);
-
+            if (currentMarker != null) {
+                clearMarker();
+            }
             showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
         }
     }
@@ -595,24 +609,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Toast.makeText(getApplicationContext(), "검색 된 매물이 없습니다.", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        if (currentMarker != null) {
-                            clearMarker();
+                        int i = 0;
+                        while(currentRoomList.size() > i) {
+                                int j = 0;
+                                while (roomList.size() > j) {
+                                    if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
+                                        roomList.remove(j);
+                                        break;
+                                    }
+                                    j++;
+                                }
+                                if (roomList.size() == j) {
+                                    for (int k = 0; k < currentMarker.size(); k++) {
+                                        LatLng temp = currentMarker.get(k).getPosition();
+                                        System.out.println("temp lat : " + temp.latitude);
+                                        System.out.println(currentRoomList.get(i).getLatitude());
+                                        System.out.println(currentRoomList.get(i).getLatitude());
+                                        if (BigDecimal.valueOf(temp.latitude).equals(currentRoomList.get(i).getLatitude()) &&
+                                            BigDecimal.valueOf(temp.longitude).equals(currentRoomList.get(i).getLongitude())) {
+                                            System.out.println("marker remove");
+                                            currentMarker.get(k).remove();
+                                            currentMarker.remove(k);
+                                            break;
+                                        }
+                                    }
+                                    currentRoomList.remove(i);
+                                }
+                            i++;
                         }
+
                         for (RoomSummaryViewVO room : roomList) {
                             if (room.getPostType().equals("게시중")) {
                                 LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
                                 MarkerOptions markerOptions = new MarkerOptions();
-//                                Log.i("InfoU",markerOptions.getInfoWindowAnchorU()+"");
-//                                Log.i("InfoV",markerOptions.getInfoWindowAnchorV()+"");
-//                                Log.i("U",markerOptions.getAnchorU()+"");
-//                                Log.i("V",markerOptions.getAnchorV()+"");
-//                                markerOptions.anchor(2.0f, 4.0f);
-//                                markerOptions.infoWindowAnchor(6.0f, 8.0f);
-//                                markerOptions.
-
                                 markerOptions.position(position);
                                 markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
                                 markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
+//                                markerOptions.
                                 markerOptions.draggable(false);
 
                                 switch (room.getRoomType()) {
@@ -632,12 +665,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
                                         break;
                                 }
+                                currentRoomList.add(room);
                                 currentMarker.add(mMap.addMarker(markerOptions));
                             }
                         }
 
                         gridView.removeAllViewsInLayout();
-                        gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), roomList));
+                        gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
                     }
                 },
                 new Response.ErrorListener() {
@@ -794,7 +828,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clickCancel(View view) {
-
+        popupLayout.removeAllViews();
     }
 
     public void ClickApply(View view) {

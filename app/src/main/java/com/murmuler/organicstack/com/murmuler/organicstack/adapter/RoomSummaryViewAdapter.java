@@ -108,7 +108,13 @@ public class RoomSummaryViewAdapter extends ArrayAdapter<RoomSummaryViewVO> {
                      + room.getRoomType() + " " + room.getArea() + " 관리비 " + manageCost
         );
         view.setMinimumHeight(450);
+        view.setId(room.getRoomId());
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
         return view;
     }
 }
