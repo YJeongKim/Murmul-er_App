@@ -58,11 +58,13 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
         Glide.with(this).load(R.drawable.bottom_search).into(botSearch);
 
+        WebSettings webSettings = webView.getSettings();
         webView.setWebViewClient(new MyWebClient());
         webView.setWebChromeClient(new WebChromeClient());
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
+        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webView.addJavascriptInterface(new AndroidBridge(), "mainView");
 
         Intent intent = getIntent();

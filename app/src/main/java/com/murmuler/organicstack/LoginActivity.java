@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private void settingWeb() {
         WebSettings webSettings = loginView.getSettings();
         loginView.setWebViewClient(new MyWebClient());
-//        loginView.setWebChromeClient(new WebChromeClient());
+        loginView.setWebChromeClient(new WebChromeClient());
         webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
