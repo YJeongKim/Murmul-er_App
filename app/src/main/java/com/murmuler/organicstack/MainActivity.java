@@ -132,8 +132,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ListView listView;
     @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
-    @BindView(R.id.searchBar)
-    LinearLayout searchBar;
+//    @BindView(R.id.searchBar)
+//    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
