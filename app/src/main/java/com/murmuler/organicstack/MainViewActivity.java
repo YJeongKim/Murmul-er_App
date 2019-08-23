@@ -7,10 +7,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -46,6 +48,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
     NavigationView navigationView;
 
     private String memberId;
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.addJavascriptInterface(new AndroidBridge(), "mainView");
         webView.loadUrl("http://192.168.30.242:8089/mobile/main");
 
         Intent intent = getIntent();
@@ -85,12 +89,25 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
+    private class AndroidBridge {
+        @JavascriptInterface
+        public void search(final String keyword) {
+            handler.post(new Runnable(){
+                public void run(){
+                    Log.d("검색 요청", keyword);
+                    Intent intent = new Intent(MainViewActivity.this, MainActivity.class);
+                    intent.putExtra("keyword", keyword);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
     @OnClick(R.id.botMain)
     public void clickMain(View v) {
         Glide.with(this).load(R.drawable.bottom_main_on).into(botMain);
         Glide.with(this).load(R.drawable.bottom_search).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like).into(botLike);
-        Glide.with(this).load(R.drawable.bottom_more).into(botMore);
         webView.loadUrl("http://192.168.30.242:8089/mobile/main");
     }
     @OnClick(R.id.botSearch)
@@ -106,7 +123,6 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         Glide.with(this).load(R.drawable.bottom_main).into(botMain);
         Glide.with(this).load(R.drawable.bottom_search).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like_on).into(botLike);
-        Glide.with(this).load(R.drawable.bottom_more).into(botMore);
         webView.loadUrl("http://192.168.30.242:8089/mobile/like/"+memberId);
     }
     @OnClick(R.id.botMore)
@@ -126,13 +142,12 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
                 Glide.with(this).load(R.drawable.bottom_main).into(botMain);
                 Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
                 Glide.with(this).load(R.drawable.bottom_like).into(botLike);
-                Glide.with(this).load(R.drawable.bottom_more).into(botMore);
+                startActivity(new Intent(MainViewActivity.this, MainActivity.class));
                 break;
             case R.id.nav_like :
                 Glide.with(this).load(R.drawable.bottom_main).into(botMain);
                 Glide.with(this).load(R.drawable.bottom_search).into(botSearch);
                 Glide.with(this).load(R.drawable.bottom_like_on).into(botLike);
-                Glide.with(this).load(R.drawable.bottom_more).into(botMore);
                 webView.loadUrl("http://192.168.30.242:8089/mobile/like/"+memberId);
                 break;
         }

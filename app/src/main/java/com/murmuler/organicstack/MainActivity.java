@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like).into(botLike);
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
+
+
         listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"방1", "방2", "방3", "방4"}));
         setSlideMenuEvent();
 
@@ -177,6 +179,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if(bundle != null) {
+            String keyword = intent.getExtras().getString("keyword");
+            Log.i("키워드값", keyword);
+            editSearch.setText(keyword);
+        }
     }
 
     private void setSlideMenuEvent() {
@@ -266,7 +276,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 setCurrentLocation(location, markerTitle, markerSnippet);
                 mCurrentLocation = location;
-
+                if(!editSearch.getText().equals("")) {
+                    btnSearch.performClick();
+                    Log.i("검색","버튼눌렀다");
+                }
             }
         }
     };
@@ -313,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void searchLocation(View view) {
         String keyword = editSearch.getText().toString();
+        Log.i("검색 키워드", keyword);
         LatLng searchLatLng = getAddressCoordinate(keyword);
         if (searchLatLng != null) {
             if (currentMarker != null) {
@@ -569,6 +583,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
 
                                 MarkerOptions markerOptions = new MarkerOptions();
+//                                Log.i("InfoU",markerOptions.getInfoWindowAnchorU()+"");
+//                                Log.i("InfoV",markerOptions.getInfoWindowAnchorV()+"");
+//                                Log.i("U",markerOptions.getAnchorU()+"");
+//                                Log.i("V",markerOptions.getAnchorV()+"");
+//                                markerOptions.anchor(2.0f, 4.0f);
+//                                markerOptions.infoWindowAnchor(6.0f, 8.0f);
+//                                markerOptions.
+
                                 markerOptions.position(position);
                                 markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
                                 markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
