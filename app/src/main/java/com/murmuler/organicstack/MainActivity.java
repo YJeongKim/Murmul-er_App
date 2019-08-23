@@ -129,15 +129,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSearch;
     @BindView(R.id.btnSlide)
     ImageButton btnSlide;
+    @BindView(R.id.popupLayout)
+    LinearLayout popupLayout;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
-    @BindView(R.id.gridView)
-    ListView listView;
+    @BindView(R.id.btnPeriod)
+    Button btnPeriod;
+    @BindView(R.id.btnDeposit)
+    Button btnDeposit;
+    @BindView(R.id.btnMonthlyCost)
+    Button btnMonthlyCost;
+    @BindView(R.id.btnOption)
+    Button btnOption;
     @BindView(R.id.gridView)
     GridView gridView;
-    LinearLayout popupLayout;
-//    @BindView(R.id.searchBar)
-//    LinearLayout searchBar;
+    @BindView(R.id.searchBar)
+    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -759,7 +766,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void clickFilter(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        int layoutId = R.id.popupLayout;
+        Button button = (Button) findViewById(view.getId());
+        int layoutId = popupLayout.getId();
+
         switch (view.getId()) {
             case R.id.btnBuildingType:
                 layoutId = R.layout.popup_building;
@@ -777,28 +786,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 layoutId = R.layout.popup_option;
                 break;
         }
-        popupLayout.removeAllViews();
-        popupLayout.addView(inflater.inflate(layoutId, null));
 
-//        LinearLayout.LayoutParams paramll = new LinearLayout.LayoutParams
-//                (LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-//        paramll.setMargins(0, 260, 0, 0);
-//        addContentView((inflater.inflate(layoutId, null)), paramll);
+        if(button.isSelected()) {
+            mLayout.setEnabled(true);
+            popupLayout.removeAllViews();
+            searchBar.setVisibility(View.VISIBLE);
+            button.setSelected(false);
+        }
+        else {
+            allSelectedFalse();
+            mLayout.setEnabled(false);
+            popupLayout.removeAllViews();
+            popupLayout.addView(inflater.inflate(layoutId, null));
+            searchBar.setVisibility(View.GONE);
+            button.setSelected(true);
+        }
 
-//        if(searchBar.getVisibility() == View.VISIBLE) {
-//            searchBar.setVisibility(View.GONE);
-//        }
-//        else {
-//            searchBar.setVisibility(View.VISIBLE);
-//        }
     }
 
     public void clickCancel(View view) {
-
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
     }
 
-    public void ClickApply(View view) {
+    public void clickApply(View view) {
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
+    }
 
+    public void allSelectedFalse() {
+        btnBuildingType.setSelected(false);
+        btnPeriod.setSelected(false);
+        btnDeposit.setSelected(false);
+        btnMonthlyCost.setSelected(false);
+        btnOption.setSelected(false);
     }
 
     @Override
