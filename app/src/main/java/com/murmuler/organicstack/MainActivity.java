@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -63,6 +66,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -84,7 +88,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
     private ArrayList<Marker> currentMarker;
@@ -107,6 +111,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
     private Location location;
+    private String memberId;
+    private String nickname;
+    private LinearLayout popupLayout;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -118,8 +125,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSlide;
     @BindView(R.id.listView)
     ListView listView;
-    LinearLayout popupLayout;
-
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -128,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton botLike;
     @BindView(R.id.botMore)
     ImageButton botMore;
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
+    @BindView(R.id.drawerLayout)
+    DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,11 +191,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        if(bundle != null) {
+//        if(bundle != null) {
             String keyword = intent.getExtras().getString("keyword");
-            Log.i("키워드값", keyword);
-            editSearch.setText(keyword);
-        }
+            if(keyword != null) {
+                Log.i("키워드값", keyword);
+                editSearch.setText(keyword);
+            }
+//        }
+        memberId = intent.getExtras().getString("memberId");
+        nickname = intent.getExtras().getString("nickname");
+
+        View headerView = navigationView.getHeaderView(0);
+        TextView userName = headerView.findViewById(R.id.loginId);
+        userName.setText(nickname);
+
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void setSlideMenuEvent() {
@@ -276,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 setCurrentLocation(location, markerTitle, markerSnippet);
                 mCurrentLocation = location;
+
                 if(!editSearch.getText().equals("")) {
                     btnSearch.performClick();
                     Log.i("검색","버튼눌렀다");
@@ -755,6 +775,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void clickOption(View view) {
         Toast.makeText(view.getContext(), "옵션", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        System.out.println("selected " + id);
+
+        switch (id) {
+            case R.id.nav_search :
+                break;
+            case R.id.nav_like :
+                Intent intent = new Intent(MainActivity.this, MainViewActivity.class);
+                intent.putExtra("nickname", nickname);
+                intent.putExtra("memberId", memberId);
+                intent.putExtra("isLike", "true");
+                startActivity(intent);
+                break;
+        }
+
+        drawerLayout.closeDrawer(navigationView);
+        return true;
+    }
+
+    @OnClick(R.id.botMain)
+    public void clickMain(View v) {
+        Intent intent = new Intent(MainActivity.this, MainViewActivity.class);
+        intent.putExtra("nickname", nickname);
+        intent.putExtra("memberId", memberId);
+        startActivity(intent);
+    }
+    @OnClick(R.id.botSearch)
+    public void clickSearch(View v) {
+    }
+    @OnClick(R.id.botLike)
+    public void clickLike(View v) {
+        Intent intent = new Intent(MainActivity.this, MainViewActivity.class);
+        intent.putExtra("nickname", nickname);
+        intent.putExtra("memberId", memberId);
+        intent.putExtra("isLike", "true");
+        startActivity(intent);
+    }
+    @OnClick(R.id.botMore)
+    public void clickMore(View v) {
+        drawerLayout.openDrawer(navigationView);
     }
 
 }
