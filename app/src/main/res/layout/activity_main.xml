@@ -1,204 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawerLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-    <com.sothree.slidinguppanel.SlidingUpPanelLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/layout_main"
-        android:orientation="vertical"
-        android:layout_marginBottom="70dp"
-        app:umanoDragView="@id/dragView"
-        app:umanoScrollableView="@id/listView"
-        app:umanoFadeColor="#00000000"
-        app:umanoOverlay="false"
-        app:umanoShadowHeight="3dp"
-        app:umanoParallaxOffset="50dp"
-        app:umanoPanelHeight="45dp"
-        android:gravity="bottom"
-        android:layout_gravity="bottom">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="#FFFFFF">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/editText"
-                    android:layout_weight="0.85"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:inputType="text"
-                    android:hint="검색어를 입력하세요"
-                    android:textAlignment="center"
-                    android:textColorHint="#9C9C9C"
-                    android:textColor="#000000"
-                    android:textSize="22dp"
-                    android:privateImeOptions="defaultInputmode=korean"/>
-                <ImageButton
-                    android:id="@+id/btnSearch"
-                    android:layout_weight="0.15"
-                    android:onClick="searchLocation"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:background="#FFFFFF"
-                    android:src="@drawable/search_custom"/>
-            </LinearLayout>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_gravity="center_vertical"
-                android:background="#B6E2F8"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <Button
-                        android:id="@+id/btnBuildingType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
-                        android:paddingLeft="15dp"
-                        android:text="건물 유형"
-                        android:textColor="#000000"
-                        android:layout_margin="5dp"
-                        android:textSize="18dp"
-                        android:onClick="clickBuildingType"/>
-                    <Button
-                        android:id="@+id/btnPeriod"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
-                        android:paddingLeft="15dp"
-                        android:text="임대기간"
-                        android:textColor="#000000"
-                        android:layout_margin="5dp"
-                        android:textSize="18dp"
-                        android:onClick="clickPeriod"/>
-                    <Button
-                        android:id="@+id/btnDeposit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
-                        android:paddingLeft="15dp"
-                        android:text="보증금"
-                        android:textColor="#000000"
-                        android:layout_margin="5dp"
-                        android:textSize="18dp"
-                        android:onClick="clickDeposit"/>
-                    <Button
-                        android:id="@+id/btnMonthlyCost"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
-                        android:paddingLeft="15dp"
-                        android:text="월세"
-                        android:textColor="#000000"
-                        android:layout_margin="5dp"
-                        android:textSize="18dp"
-                        android:onClick="clickMonthlyCost"/>
-                    <Button
-                        android:id="@+id/btnOption"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
-                        android:paddingLeft="15dp"
-                        android:text="옵션"
-                        android:textColor="#000000"
-                        android:layout_margin="5dp"
-                        android:textSize="18dp"
-                        android:onClick="clickOption"/>
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
-
-            <LinearLayout
-                android:id="@+id/popupLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-
-            <fragment
-                android:id="@+id/map_fragment"
-                android:layout_width="match_parent"
-                android:layout_height="439dp"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                map:cameraZoom="16"
-                map:mapType="normal"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/dragView"
-            android:layout_width="match_parent"
-            android:layout_height="535dp"
-            android:background="#ffffff"
-            android:clickable="true"
-            android:focusable="false"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:background="#B6E2F8"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/roomInfo"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="검색 결과"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="30dp"
-                    android:textSize="16sp" />
-
-                <ImageButton
-                    android:id="@+id/btnSlide"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="#B6E2F8"
-                    android:gravity="center_vertical"
-                    android:onClick="clickSlide"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:src="@drawable/angle_up_custom" />
-
-            </LinearLayout>
-
-            <ListView
-                android:id="@+id/listView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></ListView>
-
-        </LinearLayout>
-
-
-
-    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
     <include
-        layout="@layout/bottom_bar"
+        layout="@layout/search_main"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"
-        android:gravity="bottom" />
-</RelativeLayout>
+        android:layout_height="match_parent" />
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
+
+</androidx.drawerlayout.widget.DrawerLayout>
