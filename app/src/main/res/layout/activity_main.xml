@@ -11,12 +11,14 @@
         android:layout_height="match_parent"
         android:id="@+id/layout_main"
         android:orientation="vertical"
+        android:layout_marginBottom="70dp"
         app:umanoDragView="@id/dragView"
         app:umanoScrollableView="@id/listView"
         app:umanoFadeColor="#00000000"
         app:umanoOverlay="false"
         app:umanoShadowHeight="3dp"
         app:umanoParallaxOffset="50dp"
+        app:umanoPanelHeight="45dp"
         android:gravity="bottom"
         android:layout_gravity="bottom">
 
@@ -137,7 +139,7 @@
             <fragment
                 android:id="@+id/map_fragment"
                 android:layout_width="match_parent"
-                android:layout_height="370dp"
+                android:layout_height="439dp"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 map:cameraZoom="16"
                 map:mapType="normal"/>
@@ -147,7 +149,7 @@
         <LinearLayout
             android:id="@+id/dragView"
             android:layout_width="match_parent"
-            android:layout_height="605dp"
+            android:layout_height="535dp"
             android:background="#ffffff"
             android:clickable="true"
             android:focusable="false"
@@ -155,7 +157,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="45dp"
                 android:background="#B6E2F8"
                 android:orientation="horizontal">
 
@@ -164,9 +166,10 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:text="검색 결과"
                     android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:textSize="14sp" />
+                    android:paddingLeft="30dp"
+                    android:textSize="16sp" />
 
                 <ImageButton
                     android:id="@+id/btnSlide"
@@ -184,7 +187,7 @@
             <ListView
                 android:id="@+id/listView"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="0dp"
                 android:layout_weight="1"></ListView>
 
         </LinearLayout>
@@ -195,7 +198,7 @@
     <include
         layout="@layout/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="70dp"
         android:layout_alignParentBottom="true"
         android:gravity="bottom" />
 </RelativeLayout>
