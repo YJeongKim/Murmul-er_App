@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -75,6 +76,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.murmuler.organicstack.com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
 import com.murmuler.organicstack.com.murmuler.organicstack.vo.RoomSummaryViewVO;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private GoogleMap mMap;
+    private boolean markerFlag;
     private ArrayList<Marker> currentMarker;
 
     private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
@@ -128,9 +131,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSlide;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
-    @BindView(R.id.listView)
+    @BindView(R.id.gridView)
     ListView listView;
-    @BindView(R.id.popupLayout)
+    @BindView(R.id.gridView)
+    GridView gridView;
     LinearLayout popupLayout;
 //    @BindView(R.id.searchBar)
 //    LinearLayout searchBar;
@@ -153,20 +157,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         Glide.with(this).load(R.drawable.bottom_main).into(botMain);
         Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like).into(botLike);
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
 
 
-        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] {"방1", "방2", "방3", "방4"}));
-        setSlideMenuEvent();
+        btnSlide = findViewById(R.id.btnSlide);
+        gridView = findViewById(R.id.gridView);
 
         currentMarker = new ArrayList<>();
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
-        locationRequest = new LocationRequest();
-//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationRequest = new LocationRequest()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 //                .setInterval(FASTEST_UPDATE_INTERVAL_MS)
 //                .setFastestInterval(FASTEST_UPDATE_INTERVAL_MS);
 
@@ -218,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setSlideMenuEvent() {
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {   // 슬라이드 메뉴에서 아이템이 클릭됐을 때
@@ -282,12 +287,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener(){
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
             }
         });
+
     }
 
     LocationCallback locationCallback = new LocationCallback() {
@@ -358,21 +364,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i("검색 키워드", keyword);
         LatLng searchLatLng = getAddressCoordinate(keyword);
         if (searchLatLng != null) {
-            if (currentMarker != null) {
-                clearMarker();
-            }
-//            MarkerOptions markerOptions = new MarkerOptions();
-//            markerOptions.position(searchLatLng);
-
-//            String markerTitle = getCurrentAddress(searchLatLng);
-//            String markerSnippet = "위도 : " + searchLatLng.latitude + ", 경도 : " + searchLatLng.longitude;
-
-//            markerOptions.title(markerTitle);
-//            markerOptions.snippet(markerSnippet);
-//            markerOptions.draggable(true);
-
-//            currentMarker = mMap.addMarker(markerOptions);
-
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(searchLatLng);
             mMap.moveCamera(cameraUpdate);
 
@@ -610,7 +601,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         for (RoomSummaryViewVO room : roomList) {
                             if (room.getPostType().equals("게시중")) {
                                 LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
-
                                 MarkerOptions markerOptions = new MarkerOptions();
 //                                Log.i("InfoU",markerOptions.getInfoWindowAnchorU()+"");
 //                                Log.i("InfoV",markerOptions.getInfoWindowAnchorV()+"");
@@ -645,6 +635,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 currentMarker.add(mMap.addMarker(markerOptions));
                             }
                         }
+
+                        gridView.removeAllViewsInLayout();
+                        gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), roomList));
                     }
                 },
                 new Response.ErrorListener() {
@@ -742,11 +735,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clearMarker() {
-        while(currentMarker.size() != 0) {
+        while (currentMarker.size() != 0) {
             currentMarker.get(0).remove();
             currentMarker.remove(0);
         }
-
     }
 
     public void clickSlide(View view) {

@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:layout_marginBottom="70dp"
         app:umanoDragView="@id/dragView"
-        app:umanoScrollableView="@id/listView"
+        app:umanoScrollableView="@id/gridView"
         app:umanoFadeColor="#00000000"
         app:umanoOverlay="false"
         app:umanoShadowHeight="3dp"
@@ -184,11 +184,12 @@
 
             </LinearLayout>
 
-            <ListView
-                android:id="@+id/listView"
+            <GridView
+                android:id="@+id/gridView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"></ListView>
+                android:layout_height="wrap_content"
+                android:numColumns="1">
+            </GridView>
 
         </LinearLayout>
 
