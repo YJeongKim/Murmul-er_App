@@ -863,11 +863,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.btnOption:
                 layoutId = R.layout.popup_option;
-//                filterOption = findViewById(R.id.filterOption);
-                if (requestQueue == null) {
-                    requestQueue = Volley.newRequestQueue(getApplicationContext());
-                }
-                checkBoxList = new ArrayList<>();
                 optionList();
                 break;
         }
@@ -911,6 +906,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnOption.setSelected(false);
     }
     public void optionList(){
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        checkBoxList = new ArrayList<>();
         String url = ROOT_CONTEXT + "/mobile/search";
 //        String url = "http://192.168.30.172:8088" + "/mobile/search";
 
@@ -947,7 +946,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int size = optionList.size();
         JsonObject jsonOption;
         String option;
-//        optionArray = new ArrayList<>();
 
         for(int i=0; i<size; i=i+2){
             TableRow tr = new TableRow(this);
@@ -1003,12 +1001,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(confirmArray != null){
             curCheckBoxArray = new ArrayList<>(confirmArray);
         }
+
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+
         popupLayout.removeAllViews();
         searchBar.setVisibility(View.VISIBLE);
     }
 
     public void clickApplyOption(View view) {
         confirmArray = new ArrayList<>(curCheckBoxArray);
+
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+
         popupLayout.removeAllViews();
         showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
         searchBar.setVisibility(View.VISIBLE);
