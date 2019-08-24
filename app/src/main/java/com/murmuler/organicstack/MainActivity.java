@@ -192,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         editSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                //Enter key Action
                 if ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN)) {
                     btnSearch.callOnClick();
                     return true;
@@ -312,8 +311,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
-                System.out.println("marker size : " + currentMarker.size());
-                System.out.println("roomList size : " + currentRoomList.size());
             }
         });
 
@@ -621,68 +618,59 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         int i = 0;
                         while(currentRoomList.size() > i) {
-                                int j = 0;
-                                while (roomList.size() > j) {
-                                    if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
-                                        roomList.remove(j);
-                                        break;
-                                    }
-                                    j++;
+                            int j = 0;
+                            while (roomList.size() > j) {
+                                if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
+                                    roomList.remove(j);
+                                    break;
                                 }
-                                if (roomList.size() == j) {
-                                    for (int k = 0; k < currentMarker.size(); k++) {
-                                        LatLng temp = currentMarker.get(k).getPosition();
-                                        System.out.println("temp lat : " + temp.latitude);
-                                        System.out.println(currentRoomList.get(i).getLatitude());
-                                        System.out.println(currentRoomList.get(i).getLatitude());
-                                        if (BigDecimal.valueOf(temp.latitude).equals(currentRoomList.get(i).getLatitude()) &&
-                                            BigDecimal.valueOf(temp.longitude).equals(currentRoomList.get(i).getLongitude())) {
-                                            System.out.println("marker remove");
-                                            currentMarker.get(k).remove();
-                                            currentMarker.remove(k);
-                                            break;
-                                        }
-                                    }
-                                    currentRoomList.remove(i);
-                                }
+                                j++;
+                            }
+                            if (roomList.size() > 0 && roomList.size() == j) {
+                                currentRoomList.remove(i);
+                                continue;
+                            }
                             i++;
                         }
-
                         for (RoomSummaryViewVO room : roomList) {
-                            if (room.getPostType().equals("게시중")) {
-                                LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position(position);
-                                markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
-                                markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
-//                                markerOptions.
-                                markerOptions.draggable(false);
+                            currentRoomList.add(room);
 
-                                switch (room.getRoomType()) {
-                                    case "아파트":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_ap)));
-                                        break;
-                                    case "오피스텔":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_of)));
-                                        break;
-                                    case "원룸":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_or)));
-                                        break;
-                                    case "투룸":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_tr)));
-                                        break;
-                                    case "빌라":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
-                                        break;
-                                }
-                                currentRoomList.add(room);
-                                currentMarker.add(mMap.addMarker(markerOptions));
-                            }
                         }
+                        if (currentMarker != null) {
+                            clearMarker();
+                            for (RoomSummaryViewVO room : currentRoomList) {
+                                if (room.getPostType().equals("게시중")) {
+                                    LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(position);
+                                    markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
+                                    markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
+                                    markerOptions.draggable(false);
 
-                        gridView.removeAllViewsInLayout();
-                        gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
-                    }
+                                    switch (room.getRoomType()) {
+                                        case "아파트":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_ap)));
+                                            break;
+                                        case "오피스텔":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_of)));
+                                            break;
+                                        case "원룸":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_or)));
+                                            break;
+                                        case "투룸":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_tr)));
+                                            break;
+                                        case "빌라":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
+                                            break;
+                                    }
+                                    currentMarker.add(mMap.addMarker(markerOptions));
+                                }
+                            }
+                            gridView.removeAllViewsInLayout();
+                            gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), roomList));
+                        }
+                        }
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -779,10 +767,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clearMarker() {
-        while (currentMarker.size() != 0) {
-            currentMarker.get(0).remove();
-            currentMarker.remove(0);
+        int i = 0;
+        while (currentMarker.size() > i) {
+            if (currentMarker.get(i).isInfoWindowShown() == false) {
+                System.out.println("currentMarker index: " + i + ", flag : " + currentMarker.get(0).isInfoWindowShown());
+                currentMarker.get(i).remove();
+                currentMarker.remove(i);
+                continue;
+            }
+            i++;
         }
+        System.out.println("current marker : " + currentMarker.size());
     }
 
     public void clickSlide(View view) {
