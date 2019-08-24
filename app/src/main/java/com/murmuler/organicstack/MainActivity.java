@@ -1035,6 +1035,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra("memberId", memberId);
                 intent.putExtra("isLike", "true");
                 startActivity(intent);
+                finish();
                 break;
         }
 
@@ -1048,6 +1049,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         intent.putExtra("nickname", nickname);
         intent.putExtra("memberId", memberId);
         startActivity(intent);
+        finish();
     }
     @OnClick(R.id.botSearch)
     public void clickSearch(View v) {
@@ -1059,6 +1061,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         intent.putExtra("memberId", memberId);
         intent.putExtra("isLike", "true");
         startActivity(intent);
+        finish();
     }
     @OnClick(R.id.botMore)
     public void clickMore(View v) {
