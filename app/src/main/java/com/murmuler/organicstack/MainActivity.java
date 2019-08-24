@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location location;
     private String memberId;
     private String nickname;
+    private String popupStatus = "COLLAPSED";
 
     private TableLayout filterOption;
     private ArrayList<CheckBox> checkBoxList;
@@ -199,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-
         editSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -210,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
-
 
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -223,13 +222,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-//        if(bundle != null) {
-            String keyword = intent.getExtras().getString("keyword");
-            if(keyword != null) {
-                Log.i("키워드값", keyword);
-                editSearch.setText(keyword);
-            }
-//        }
+        String keyword = intent.getExtras().getString("keyword");
+        if(keyword != null) {
+            Log.i("키워드값", keyword);
+            editSearch.setText(keyword);
+        }
         memberId = intent.getExtras().getString("memberId");
         nickname = intent.getExtras().getString("nickname");
 
@@ -238,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         userName.setText(nickname);
 
         navigationView.setNavigationItemSelectedListener(this);
-
         curCheckBoxArray = new ArrayList<>();
         setSlideMenuEvent();
     }
@@ -260,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         ((SlidingUpPanelLayout)mLayout).addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
-            public void onPanelSlide(View panel, float slideOffset) {}
+            public void onPanelSlide(View panel, float slideOffset) {
+            }
 
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
@@ -268,9 +265,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 switch (newState.toString()) {
                     case "EXPANDED" :
                         Glide.with(MainActivity.this).load(R.drawable.angle_down_custom).into(btnSlide);
+                        popupStatus = "EXPANDED";
                         break;
                     case "COLLAPSED" :
                         Glide.with(MainActivity.this).load(R.drawable.angle_up_custom).into(btnSlide);
+                        popupStatus = "COLLAPSED";
+                        break;
+                    case "DRAGGING" :
+                        if(popupStatus.equals("COLLAPSED") && popupLayout.getChildCount()==1) {
+                            allSelectedFalse();
+                            popupLayout.removeAllViews();
+                            searchBar.setVisibility(View.VISIBLE);
+                        }
                         break;
                 }
             }
@@ -517,7 +523,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
-
         return false;
     }
 
@@ -622,7 +627,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         String url = ROOT_CONTEXT + "/searchRoom/search?southWest=" + southWest + "&northEast=" + northEast;
 
-
         StringRequest request = new Utf8StringRequest(
                 Request.Method.GET,
                 url,
@@ -653,7 +657,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         for (RoomSummaryViewVO room : roomList) {
                             currentRoomList.add(room);
-
                         }
                         if (currentMarker != null) {
                             clearMarker();
@@ -828,7 +831,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clickSlide(View view) {
-//        Toast.makeText(view.getContext(), "up", Toast.LENGTH_LONG).show();
         SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout)mLayout;
         switch (slidingPanel.getPanelState().toString()) {
             case "EXPANDED" :
@@ -836,6 +838,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Glide.with(MainActivity.this).load(R.drawable.angle_up_custom).into(btnSlide);
                 break;
             case "COLLAPSED" :
+                if(popupLayout.getChildCount()==1) {
+                    allSelectedFalse();
+                    popupLayout.removeAllViews();
+                    searchBar.setVisibility(View.VISIBLE);
+                }
                 slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                 Glide.with(MainActivity.this).load(R.drawable.angle_down_custom).into(btnSlide);
                 break;
@@ -847,6 +854,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Button button = (Button) findViewById(view.getId());
         int layoutId = popupLayout.getId();
+        SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout)mLayout;
 
         switch (view.getId()) {
             case R.id.btnBuildingType:
@@ -867,15 +875,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
 
+        if (slidingPanel.getPanelState().toString().equals("EXPANDED")) {
+            slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            Glide.with(MainActivity.this).load(R.drawable.angle_up_custom).into(btnSlide);
+        }
+
         if(button.isSelected()) {
-            mLayout.setEnabled(true);
             popupLayout.removeAllViews();
             searchBar.setVisibility(View.VISIBLE);
             button.setSelected(false);
         }
         else {
             allSelectedFalse();
-            mLayout.setEnabled(false);
             popupLayout.removeAllViews();
             popupLayout.addView(inflater.inflate(layoutId, null));
             searchBar.setVisibility(View.GONE);
@@ -885,14 +896,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clickCancel(View view) {
-        mLayout.setEnabled(true);
         allSelectedFalse();
         popupLayout.removeAllViews();
         searchBar.setVisibility(View.VISIBLE);
     }
 
     public void clickApply(View view) {
-        mLayout.setEnabled(true);
         allSelectedFalse();
         popupLayout.removeAllViews();
         searchBar.setVisibility(View.VISIBLE);
@@ -1024,7 +1033,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        System.out.println("selected " + id);
+        Log.i("NavigatinoItemSeleted", "selected " + id);
 
         switch (id) {
             case R.id.nav_search :
