@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DetailActivity extends AppCompatActivity {
-    private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
+    private static final String ROOT_CONTEXT = "http://192.168.30.242:8089";
     private final Handler handler = new Handler();
 //    private String memberId;
 //    private String nickname;
@@ -38,7 +38,7 @@ public class DetailActivity extends AppCompatActivity {
         roomId = intent.getExtras().getString("roomId");
 
         settingWeb();
-        webView.loadUrl(ROOT_CONTEXT+"/mobile/searchRoom/"+roomId);
+        webView.loadUrl(ROOT_CONTEXT+"/mobile/searchRoom/"+roomId+"?flag=true");
     }
 
     private void settingWeb() {
