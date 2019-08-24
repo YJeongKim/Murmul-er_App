@@ -26,7 +26,7 @@ import butterknife.OnClick;
 
 
 public class MainViewActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    private static final String ROOT_CONTEXT = "http://www.murmul-er.com/";
+    private static final String ROOT_CONTEXT = "http://192.168.30.242:8089";
     private static final int MAIN_PAGE = 1;
     private static final int LIKE_PAGE = 2;
 
@@ -73,9 +73,9 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         String isLike = intent.getExtras().getString("isLike");
         if(isLike != null) {
             iconSetting(LIKE_PAGE);
-            webView.loadUrl(ROOT_CONTEXT+"mobile/like/"+memberId);
+            webView.loadUrl(ROOT_CONTEXT+"/mobile/like/"+memberId);
         } else {
-            webView.loadUrl(ROOT_CONTEXT+"mobile/main");
+            webView.loadUrl(ROOT_CONTEXT+"/mobile/main");
             iconSetting(MAIN_PAGE);
         }
         View headerView = navigationView.getHeaderView(0);
@@ -117,7 +117,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
     @OnClick(R.id.botMain)
     public void clickMain(View v) {
         iconSetting(MAIN_PAGE);
-        webView.loadUrl(ROOT_CONTEXT+"mobile/main");
+        webView.loadUrl(ROOT_CONTEXT+"/mobile/main");
     }
     @OnClick(R.id.botSearch)
     public void clickSearch(View v) {
@@ -129,7 +129,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
     @OnClick(R.id.botLike)
     public void clickLike(View v) {
         iconSetting(LIKE_PAGE);
-        webView.loadUrl(ROOT_CONTEXT+"mobile/like/"+memberId);
+        webView.loadUrl(ROOT_CONTEXT+"/mobile/like/"+memberId);
     }
     @OnClick(R.id.botMore)
     public void clickMore(View v) {
@@ -152,7 +152,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
                 break;
             case R.id.nav_like :
                 iconSetting(LIKE_PAGE);
-                webView.loadUrl(ROOT_CONTEXT+"mobile/like/"+memberId);
+                webView.loadUrl(ROOT_CONTEXT+"/mobile/like/"+memberId);
                 break;
         }
 
