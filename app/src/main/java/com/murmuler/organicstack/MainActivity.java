@@ -5,6 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.CompoundButtonCompat;
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
@@ -29,11 +36,14 @@ import android.location.LocationManager;
 import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +76,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -96,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<RoomSummaryViewVO> currentRoomList;
 
     private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
+//    private static final String ROOT_CONTEXT = "http://192.168.30.172:8088";
     private static RequestQueue requestQueue;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -114,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location location;
     private String memberId;
     private String nickname;
+
+    private TableLayout filterOption;
+    private ArrayList<CheckBox> checkBoxList;
+    private ArrayList<String> curCheckBoxArray;
+    private ArrayList<String> confirmArray;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -139,6 +156,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button btnOption;
     @BindView(R.id.searchBar)
     LinearLayout searchBar;
+//    @BindView(R.id.gridView)
+//    ListView listView;
+//    @BindView(R.id.searchBar)
+//    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -217,6 +238,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         userName.setText(nickname);
 
         navigationView.setNavigationItemSelectedListener(this);
+
+        curCheckBoxArray = new ArrayList<>();
         setSlideMenuEvent();
     }
 
@@ -723,6 +746,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Object obj = jsonParser.parse(response);
         JsonObject jsonObj = (JsonObject) obj;
 
+        int check = 0;
         for (int i = 0; i < jsonObj.size(); i++) {
             String temp = jsonObj.get("item" + i).toString();
             Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
@@ -756,8 +780,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             for (JsonElement e : jsonObject.get("roomOptions").getAsJsonArray()) {
                 roomOptions.add(e.getAsString());
             }
-            roomSummaryViewVO.setRoomOptions(roomOptions);
-            roomList.add(roomSummaryViewVO);
+
+//            System.out.println("====================================================================================================================================");
+//            System.out.println("체크 리스트 : " + curCheckBoxArray);
+//            System.out.println("옵션 리스트 : " + roomOptions);
+//            System.out.println("====================================================================================================================================");
+
+            if(curCheckBoxArray != null){
+                if(roomOptions.size() < curCheckBoxArray.size()){
+//                    System.out.println("체크된 옵션이 room의 옵션보다 많다");
+                    continue;
+                }
+                // 포문 돌면서 optionArray/roomOptions 비교해서 넣기
+                for(int j=0; j<curCheckBoxArray.size(); j++){
+                    if(roomOptions.contains(curCheckBoxArray.get(j)) == false){
+//                        System.out.println("체크된 옵션을 room 옵션이 가지고 있지 않다");
+                        check = 1;
+                        break;
+                    }
+                }
+                if(check == 0){
+                    roomSummaryViewVO.setRoomOptions(roomOptions);
+                    roomList.add(roomSummaryViewVO);
+                }else{
+                    check = 0;
+                }
+            }else{
+                roomSummaryViewVO.setRoomOptions(roomOptions);
+                roomList.add(roomSummaryViewVO);
+            }
         }
         return roomList;
     }
@@ -812,6 +863,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.btnOption:
                 layoutId = R.layout.popup_option;
+//                filterOption = findViewById(R.id.filterOption);
+                if (requestQueue == null) {
+                    requestQueue = Volley.newRequestQueue(getApplicationContext());
+                }
+                checkBoxList = new ArrayList<>();
+                optionList();
                 break;
         }
 
@@ -852,6 +909,109 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnDeposit.setSelected(false);
         btnMonthlyCost.setSelected(false);
         btnOption.setSelected(false);
+    }
+    public void optionList(){
+        String url = ROOT_CONTEXT + "/mobile/search";
+//        String url = "http://192.168.30.172:8088" + "/mobile/search";
+
+        StringRequest request = new Utf8StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        String result = createOptionList(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("Error: " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        requestQueue.add(request);
+    }
+
+    public String createOptionList(String response) {
+        JsonParser jsonParser =  new JsonParser();
+        JsonObject jsonObj = (JsonObject) jsonParser.parse(response);
+        JsonArray optionList = jsonObj.get("options").getAsJsonArray();
+        int size = optionList.size();
+        JsonObject jsonOption;
+        String option;
+//        optionArray = new ArrayList<>();
+
+        for(int i=0; i<size; i=i+2){
+            TableRow tr = new TableRow(this);
+            for(int j=i; j<=i+1; j++){
+                if(j == size){
+                    break;
+                }
+                jsonOption = optionList.get(j).getAsJsonObject();
+                option = jsonOption.get(j+1+"").getAsString();
+
+                CheckBox checkBox = new CheckBox(this);
+                checkBox.setText(option);
+                if(curCheckBoxArray.contains(option) == true){
+                    checkBox.setChecked(true);
+                }
+
+                checkBox.setOnClickListener(new CheckBox.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        System.out.println(((CheckBox)v).getText() + "클릭");
+
+                        if (((CheckBox)v).isChecked()) {
+                            curCheckBoxArray.add(((CheckBox)v).getText()+"");
+                        } else {
+                            curCheckBoxArray.remove(((CheckBox)v).getText()+"");
+                        }
+                        System.out.println("현재 체크 된 값 : " + curCheckBoxArray);
+                    }
+                }) ;
+
+                int states[][] = {{android.R.attr.state_checked}, {}};
+                int colors[] = {Color.rgb(182, 226, 248), Color.GRAY};
+                CompoundButtonCompat.setButtonTintList(checkBox, new ColorStateList(states, colors));
+
+                float scale = getResources().getDisplayMetrics().density;
+                checkBox.setPadding(checkBox.getPaddingLeft() + (int)(30.0f * scale + 0.5f),
+                        checkBox.getPaddingTop(),
+                        checkBox.getPaddingRight(),
+                        checkBox.getPaddingBottom());
+
+                checkBoxList.add(checkBox);
+                tr.addView(checkBox);
+            }
+            filterOption = findViewById(R.id.filterOption);
+            filterOption.addView(tr);
+        }
+
+        return "SUCCESS";
+    }
+
+    public void clickCancelOption(View view) {
+        curCheckBoxArray.clear();
+        if(confirmArray != null){
+            curCheckBoxArray = new ArrayList<>(confirmArray);
+        }
+        popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void clickApplyOption(View view) {
+        confirmArray = new ArrayList<>(curCheckBoxArray);
+        popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+        searchBar.setVisibility(View.VISIBLE);
     }
 
     @Override
