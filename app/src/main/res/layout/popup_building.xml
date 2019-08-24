@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/popupBuilding"
     android:background="#ffffff">
 
     <TextView
@@ -26,29 +27,35 @@
             android:weightSum="3">
 
             <Button
+                android:id="@+id/apartment"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
+                android:onClick="buildingTypeClick"
                 android:text="아파트"
                 android:textSize="20sp"/>
 
             <Button
+                android:id="@+id/villa"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
+                android:onClick="buildingTypeClick"
                 android:text="빌라"
                 android:textSize="20sp" />
 
             <Button
+                android:id="@+id/officeTel"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
+                android:onClick="buildingTypeClick"
                 android:text="오피스텔"
                 android:textSize="20sp" />
 
@@ -60,19 +67,23 @@
             android:weightSum="2">
 
             <Button
+                android:id="@+id/twoRoom"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:background="@drawable/button_popup"
+                android:onClick="buildingTypeClick"
                 android:text="투룸"
                 android:textSize="20sp" />
 
             <Button
+                android:id="@+id/oneRoom"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
+                android:onClick="buildingTypeClick"
                 android:layout_margin="5dp"
                 android:text="원룸"
                 android:textSize="20sp"/>
