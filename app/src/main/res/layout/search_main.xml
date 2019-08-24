@@ -29,6 +29,7 @@
             android:background="#FFFFFF">
 
             <LinearLayout
+                android:id="@+id/searchBar"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal">
@@ -70,7 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
+                        android:drawableRight="@drawable/filter_button"
                         android:paddingLeft="15dp"
                         android:text="건물 유형"
                         android:textColor="#000000"
@@ -82,7 +83,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
+                        android:drawableRight="@drawable/filter_button"
                         android:paddingLeft="15dp"
                         android:text="임대기간"
                         android:textColor="#000000"
@@ -94,7 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
+                        android:drawableRight="@drawable/filter_button"
                         android:paddingLeft="15dp"
                         android:text="보증금"
                         android:textColor="#000000"
@@ -106,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
+                        android:drawableRight="@drawable/filter_button"
                         android:paddingLeft="15dp"
                         android:text="월세"
                         android:textColor="#000000"
@@ -118,7 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_border"
-                        android:drawableRight="@drawable/angle_down_custom"
+                        android:drawableRight="@drawable/filter_button"
                         android:paddingLeft="15dp"
                         android:text="옵션"
                         android:textColor="#000000"

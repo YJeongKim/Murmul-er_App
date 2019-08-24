@@ -123,12 +123,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSearch;
     @BindView(R.id.btnSlide)
     ImageButton btnSlide;
+    @BindView(R.id.popupLayout)
+    LinearLayout popupLayout;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
     @BindView(R.id.listView)
     ListView listView;
-    @BindView(R.id.popupLayout)
-    LinearLayout popupLayout;
+    @BindView(R.id.btnPeriod)
+    Button btnPeriod;
+    @BindView(R.id.btnDeposit)
+    Button btnDeposit;
+    @BindView(R.id.btnMonthlyCost)
+    Button btnMonthlyCost;
+    @BindView(R.id.btnOption)
+    Button btnOption;
+    @BindView(R.id.searchBar)
+    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -172,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         editSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                //Enter key Action
                 if ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN)) {
                     btnSearch.callOnClick();
                     return true;
@@ -298,8 +307,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
-                System.out.println("marker size : " + currentMarker.size());
-                System.out.println("roomList size : " + currentRoomList.size());
             }
         });
 
@@ -607,67 +614,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         int i = 0;
                         while(currentRoomList.size() > i) {
-                                int j = 0;
-                                while (roomList.size() > j) {
-                                    if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
-                                        roomList.remove(j);
-                                        break;
-                                    }
-                                    j++;
+                            int j = 0;
+                            while (roomList.size() > j) {
+                                if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
+                                    roomList.remove(j);
+                                    break;
                                 }
-                                if (roomList.size() == j) {
-                                    for (int k = 0; k < currentMarker.size(); k++) {
-                                        LatLng temp = currentMarker.get(k).getPosition();
-                                        System.out.println("temp lat : " + temp.latitude);
-                                        System.out.println(currentRoomList.get(i).getLatitude());
-                                        System.out.println(currentRoomList.get(i).getLatitude());
-                                        if (BigDecimal.valueOf(temp.latitude).equals(currentRoomList.get(i).getLatitude()) &&
-                                            BigDecimal.valueOf(temp.longitude).equals(currentRoomList.get(i).getLongitude())) {
-                                            System.out.println("marker remove");
-                                            currentMarker.get(k).remove();
-                                            currentMarker.remove(k);
-                                            break;
-                                        }
-                                    }
-                                    currentRoomList.remove(i);
-                                }
+                                j++;
+                            }
+                            if (roomList.size() > 0 && roomList.size() == j) {
+                                currentRoomList.remove(i);
+                                continue;
+                            }
                             i++;
                         }
-
                         for (RoomSummaryViewVO room : roomList) {
-                            if (room.getPostType().equals("게시중")) {
-                                LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position(position);
-                                markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
-                                markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
-//                                markerOptions.
-                                markerOptions.draggable(false);
+                            currentRoomList.add(room);
 
-                                switch (room.getRoomType()) {
-                                    case "아파트":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_ap)));
-                                        break;
-                                    case "오피스텔":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_of)));
-                                        break;
-                                    case "원룸":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_or)));
-                                        break;
-                                    case "투룸":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_tr)));
-                                        break;
-                                    case "빌라":
-                                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
-                                        break;
-                                }
-                                currentRoomList.add(room);
-                                currentMarker.add(mMap.addMarker(markerOptions));
-                            }
                         }
+                        if (currentMarker != null) {
+                            clearMarker();
+                            for (RoomSummaryViewVO room : currentRoomList) {
+                                if (room.getPostType().equals("게시중")) {
+                                    LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(position);
+                                    markerOptions.title(room.getSido() + " " + room.getSigungu() + " " + room.getRoadname());
+                                    markerOptions.snippet("[" + room.getRoomType() + "] " + room.getTitle());
+                                    markerOptions.draggable(false);
 
-                        listView.removeAllViewsInLayout();
-                        listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
+                                    switch (room.getRoomType()) {
+                                        case "아파트":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_ap)));
+                                            break;
+                                        case "오피스텔":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_of)));
+                                            break;
+                                        case "원룸":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_or)));
+                                            break;
+                                        case "투룸":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_tr)));
+                                            break;
+                                        case "빌라":
+                                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMarker(R.drawable.mk_vi)));
+                                            break;
+                                    }
+                                    currentMarker.add(mMap.addMarker(markerOptions));
+                                }
+                            }
+                            listView.removeAllViewsInLayout();
+                            listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -765,10 +763,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clearMarker() {
-        while (currentMarker.size() != 0) {
-            currentMarker.get(0).remove();
-            currentMarker.remove(0);
+        int i = 0;
+        while (currentMarker.size() > i) {
+            if (currentMarker.get(i).isInfoWindowShown() == false) {
+                System.out.println("currentMarker index: " + i + ", flag : " + currentMarker.get(0).isInfoWindowShown());
+                currentMarker.get(i).remove();
+                currentMarker.remove(i);
+                continue;
+            }
+            i++;
         }
+        System.out.println("current marker : " + currentMarker.size());
     }
 
     public void clickSlide(View view) {
@@ -789,7 +794,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void clickFilter(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        int layoutId = R.id.popupLayout;
+        Button button = (Button) findViewById(view.getId());
+        int layoutId = popupLayout.getId();
+
         switch (view.getId()) {
             case R.id.btnBuildingType:
                 layoutId = R.layout.popup_building;
@@ -807,28 +814,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 layoutId = R.layout.popup_option;
                 break;
         }
-        popupLayout.removeAllViews();
-        popupLayout.addView(inflater.inflate(layoutId, null));
 
-//        LinearLayout.LayoutParams paramll = new LinearLayout.LayoutParams
-//                (LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-//        paramll.setMargins(0, 260, 0, 0);
-//        addContentView((inflater.inflate(layoutId, null)), paramll);
+        if(button.isSelected()) {
+            mLayout.setEnabled(true);
+            popupLayout.removeAllViews();
+            searchBar.setVisibility(View.VISIBLE);
+            button.setSelected(false);
+        }
+        else {
+            allSelectedFalse();
+            mLayout.setEnabled(false);
+            popupLayout.removeAllViews();
+            popupLayout.addView(inflater.inflate(layoutId, null));
+            searchBar.setVisibility(View.GONE);
+            button.setSelected(true);
+        }
 
-//        if(searchBar.getVisibility() == View.VISIBLE) {
-//            searchBar.setVisibility(View.GONE);
-//        }
-//        else {
-//            searchBar.setVisibility(View.VISIBLE);
-//        }
     }
 
     public void clickCancel(View view) {
+        mLayout.setEnabled(true);
+        allSelectedFalse();
         popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
     }
 
-    public void ClickApply(View view) {
+    public void clickApply(View view) {
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
+    }
 
+    public void allSelectedFalse() {
+        btnBuildingType.setSelected(false);
+        btnPeriod.setSelected(false);
+        btnDeposit.setSelected(false);
+        btnMonthlyCost.setSelected(false);
+        btnOption.setSelected(false);
     }
 
     @Override
