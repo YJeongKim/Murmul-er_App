@@ -1,4 +1,4 @@
-package com.murmuler.organicstack.com.murmuler.organicstack.vo;
+package com.murmuler.organicstack.vo;
 
 import java.math.BigDecimal;
 import java.sql.Date;
