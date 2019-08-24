@@ -5,7 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
@@ -27,17 +33,17 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Looper;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,12 +76,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.murmuler.organicstack.com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
-import com.murmuler.organicstack.com.murmuler.organicstack.vo.RoomSummaryViewVO;
+import com.murmuler.organicstack.adapter.TempAdapter;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.murmuler.organicstack.vo.RoomSummaryViewVO;
+import com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -99,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<RoomSummaryViewVO> currentRoomList;
 
     private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
+//    private static final String ROOT_CONTEXT = "http://192.168.30.172:8088";
     private static RequestQueue requestQueue;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -119,6 +128,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String nickname;
     private String popupStatus = "COLLAPSED";
 
+    private TableLayout filterOption;
+    private ArrayList<CheckBox> checkBoxList;
+    private ArrayList<String> curCheckBoxArray;
+    private ArrayList<String> confirmArray;
+
     @BindView(R.id.layout_main)
     View mLayout;
     @BindView(R.id.editText)
@@ -131,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LinearLayout popupLayout;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
+    @BindView(R.id.listView)
+    ListView listView;
     @BindView(R.id.btnPeriod)
     Button btnPeriod;
     @BindView(R.id.btnDeposit)
@@ -139,10 +155,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button btnMonthlyCost;
     @BindView(R.id.btnOption)
     Button btnOption;
-    @BindView(R.id.gridView)
-    GridView gridView;
     @BindView(R.id.searchBar)
     LinearLayout searchBar;
+//    @BindView(R.id.gridView)
+//    ListView listView;
+//    @BindView(R.id.searchBar)
+//    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -167,10 +185,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like).into(botLike);
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
-
-
-        btnSlide = findViewById(R.id.btnSlide);
-        gridView = findViewById(R.id.gridView);
 
         currentMarker = new ArrayList<>();
         currentRoomList = new ArrayList<>();
@@ -221,16 +235,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         userName.setText(nickname);
 
         navigationView.setNavigationItemSelectedListener(this);
+        curCheckBoxArray = new ArrayList<>();
         setSlideMenuEvent();
     }
 
     private void setSlideMenuEvent() {
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {   // 슬라이드 메뉴에서 아이템이 클릭됐을 때
-                AppCompatTextView tv = (AppCompatTextView)view;
-                Toast.makeText(MainActivity.this, tv.getText(), Toast.LENGTH_SHORT).show();
+//                System.out.println(view.toString());
+                Log.i("parent",parent.toString());
+                Log.i("view",view.toString());
+                Log.i("position",position+"");
+                Log.i("id",id+"");
+//                AppCompatTextView tv = (AppCompatTextView)view;
+//                Toast.makeText(MainActivity.this, tv.getText(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -669,8 +689,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     currentMarker.add(mMap.addMarker(markerOptions));
                                 }
                             }
-                            gridView.removeAllViewsInLayout();
-                            gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), roomList));
+                            listView.removeAllViewsInLayout();
+                            listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
                         }
                     }
                 },
@@ -729,6 +749,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Object obj = jsonParser.parse(response);
         JsonObject jsonObj = (JsonObject) obj;
 
+        int check = 0;
         for (int i = 0; i < jsonObj.size(); i++) {
             String temp = jsonObj.get("item" + i).toString();
             Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
@@ -762,8 +783,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             for (JsonElement e : jsonObject.get("roomOptions").getAsJsonArray()) {
                 roomOptions.add(e.getAsString());
             }
-            roomSummaryViewVO.setRoomOptions(roomOptions);
-            roomList.add(roomSummaryViewVO);
+
+//            System.out.println("====================================================================================================================================");
+//            System.out.println("체크 리스트 : " + curCheckBoxArray);
+//            System.out.println("옵션 리스트 : " + roomOptions);
+//            System.out.println("====================================================================================================================================");
+
+            if(curCheckBoxArray != null){
+                if(roomOptions.size() < curCheckBoxArray.size()){
+//                    System.out.println("체크된 옵션이 room의 옵션보다 많다");
+                    continue;
+                }
+                // 포문 돌면서 optionArray/roomOptions 비교해서 넣기
+                for(int j=0; j<curCheckBoxArray.size(); j++){
+                    if(roomOptions.contains(curCheckBoxArray.get(j)) == false){
+//                        System.out.println("체크된 옵션을 room 옵션이 가지고 있지 않다");
+                        check = 1;
+                        break;
+                    }
+                }
+                if(check == 0){
+                    roomSummaryViewVO.setRoomOptions(roomOptions);
+                    roomList.add(roomSummaryViewVO);
+                }else{
+                    check = 0;
+                }
+            }else{
+                roomSummaryViewVO.setRoomOptions(roomOptions);
+                roomList.add(roomSummaryViewVO);
+            }
         }
         return roomList;
     }
@@ -823,6 +871,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.btnOption:
                 layoutId = R.layout.popup_option;
+                optionList();
                 break;
         }
 
@@ -865,6 +914,120 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnMonthlyCost.setSelected(false);
         btnOption.setSelected(false);
     }
+    public void optionList(){
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+        checkBoxList = new ArrayList<>();
+        String url = ROOT_CONTEXT + "/mobile/search";
+//        String url = "http://192.168.30.172:8088" + "/mobile/search";
+
+        StringRequest request = new Utf8StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        String result = createOptionList(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("Error: " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        requestQueue.add(request);
+    }
+
+    public String createOptionList(String response) {
+        JsonParser jsonParser =  new JsonParser();
+        JsonObject jsonObj = (JsonObject) jsonParser.parse(response);
+        JsonArray optionList = jsonObj.get("options").getAsJsonArray();
+        int size = optionList.size();
+        JsonObject jsonOption;
+        String option;
+
+        for(int i=0; i<size; i=i+2){
+            TableRow tr = new TableRow(this);
+            for(int j=i; j<=i+1; j++){
+                if(j == size){
+                    break;
+                }
+                jsonOption = optionList.get(j).getAsJsonObject();
+                option = jsonOption.get(j+1+"").getAsString();
+
+                CheckBox checkBox = new CheckBox(this);
+                checkBox.setText(option);
+                if(curCheckBoxArray.contains(option) == true){
+                    checkBox.setChecked(true);
+                }
+
+                checkBox.setOnClickListener(new CheckBox.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        System.out.println(((CheckBox)v).getText() + "클릭");
+
+                        if (((CheckBox)v).isChecked()) {
+                            curCheckBoxArray.add(((CheckBox)v).getText()+"");
+                        } else {
+                            curCheckBoxArray.remove(((CheckBox)v).getText()+"");
+                        }
+                        System.out.println("현재 체크 된 값 : " + curCheckBoxArray);
+                    }
+                }) ;
+
+                int states[][] = {{android.R.attr.state_checked}, {}};
+                int colors[] = {Color.rgb(182, 226, 248), Color.GRAY};
+                CompoundButtonCompat.setButtonTintList(checkBox, new ColorStateList(states, colors));
+
+                float scale = getResources().getDisplayMetrics().density;
+                checkBox.setPadding(checkBox.getPaddingLeft() + (int)(30.0f * scale + 0.5f),
+                        checkBox.getPaddingTop(),
+                        checkBox.getPaddingRight(),
+                        checkBox.getPaddingBottom());
+
+                checkBoxList.add(checkBox);
+                tr.addView(checkBox);
+            }
+            filterOption = findViewById(R.id.filterOption);
+            filterOption.addView(tr);
+        }
+
+        return "SUCCESS";
+    }
+
+    public void clickCancelOption(View view) {
+        curCheckBoxArray.clear();
+        if(confirmArray != null){
+            curCheckBoxArray = new ArrayList<>(confirmArray);
+        }
+
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+
+        popupLayout.removeAllViews();
+        searchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void clickApplyOption(View view) {
+        confirmArray = new ArrayList<>(curCheckBoxArray);
+
+        mLayout.setEnabled(true);
+        allSelectedFalse();
+
+        popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+        searchBar.setVisibility(View.VISIBLE);
+    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -881,6 +1044,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra("memberId", memberId);
                 intent.putExtra("isLike", "true");
                 startActivity(intent);
+                finish();
                 break;
         }
 
@@ -894,6 +1058,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         intent.putExtra("nickname", nickname);
         intent.putExtra("memberId", memberId);
         startActivity(intent);
+        finish();
     }
     @OnClick(R.id.botSearch)
     public void clickSearch(View v) {
@@ -905,6 +1070,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         intent.putExtra("memberId", memberId);
         intent.putExtra("isLike", "true");
         startActivity(intent);
+        finish();
     }
     @OnClick(R.id.botMore)
     public void clickMore(View v) {
