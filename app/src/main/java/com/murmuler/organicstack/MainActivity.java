@@ -15,6 +15,7 @@ import android.graphics.Color;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,7 +81,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.murmuler.organicstack.adapter.TempAdapter;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.murmuler.organicstack.vo.RoomSummaryViewVO;
 import com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
@@ -96,6 +96,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -107,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<RoomSummaryViewVO> currentRoomList;
 
     private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
-//    private static final String ROOT_CONTEXT = "http://192.168.30.172:8088";
     private static RequestQueue requestQueue;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<String> curCheckBoxArray;
     private ArrayList<String> confirmArray;
 
+    private ArrayList<Button> selectedBuildingTypeButton;
+
     @BindView(R.id.layout_main)
     View mLayout;
     @BindView(R.id.editText)
@@ -143,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSlide;
     @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
+    @BindView(R.id.popupBuilding)
+    LinearLayout popupBuilding;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
     @BindView(R.id.listView)
@@ -157,10 +161,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button btnOption;
     @BindView(R.id.searchBar)
     LinearLayout searchBar;
-//    @BindView(R.id.gridView)
-//    ListView listView;
-//    @BindView(R.id.searchBar)
-//    LinearLayout searchBar;
     @BindView(R.id.botMain)
     ImageButton botMain;
     @BindView(R.id.botSearch)
@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         currentMarker = new ArrayList<>();
         currentRoomList = new ArrayList<>();
+        selectedBuildingTypeButton = new ArrayList<>();
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
@@ -749,8 +750,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Object obj = jsonParser.parse(response);
         JsonObject jsonObj = (JsonObject) obj;
 
+        boolean buildingTypeFlag = false;
         int check = 0;
+
         for (int i = 0; i < jsonObj.size(); i++) {
+            buildingTypeFlag = false;
             String temp = jsonObj.get("item" + i).toString();
             Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
 
@@ -783,6 +787,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             for (JsonElement e : jsonObject.get("roomOptions").getAsJsonArray()) {
                 roomOptions.add(e.getAsString());
             }
+
+            if (selectedBuildingTypeButton != null) {
+                for (Button button : selectedBuildingTypeButton) {
+                    if (roomSummaryViewVO.getRoomType().equals(button.getText().toString())) {
+                        buildingTypeFlag = true;
+                    }
+                }
+            }
+            if (buildingTypeFlag == false) continue;
 
 //            System.out.println("====================================================================================================================================");
 //            System.out.println("체크 리스트 : " + curCheckBoxArray);
@@ -859,6 +872,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (view.getId()) {
             case R.id.btnBuildingType:
                 layoutId = R.layout.popup_building;
+
                 break;
             case R.id.btnPeriod:
                 layoutId = R.layout.popup_period;
@@ -891,6 +905,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             popupLayout.addView(inflater.inflate(layoutId, null));
             searchBar.setVisibility(View.GONE);
             button.setSelected(true);
+
+            if(button.getId() == btnBuildingType.getId()) {
+                for (Button b : selectedBuildingTypeButton) {
+                    ((Button) findViewById(b.getId())).setSelected(true);
+                }
+            }
         }
 
     }
@@ -914,6 +934,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnMonthlyCost.setSelected(false);
         btnOption.setSelected(false);
     }
+
+    public void buildingTypeClick(View view) {
+        if (view.isSelected()) {
+            for (Button button : selectedBuildingTypeButton) {
+                if (button.getId() == view.getId()) {
+                    selectedBuildingTypeButton.remove(button);
+                    return;
+                }
+            }
+            view.setSelected(false);
+        } else {
+            selectedBuildingTypeButton.add((Button) view);
+            view.setSelected(true);
+        }
+        System.out.println(selectedBuildingTypeButton);
+    }
+
     public void optionList(){
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
