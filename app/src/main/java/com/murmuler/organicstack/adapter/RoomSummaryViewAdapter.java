@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.murmuler.organicstack.DetailActivity;
 import com.murmuler.organicstack.MainActivity;
 import com.murmuler.organicstack.R;
+import com.murmuler.organicstack.util.Constants;
 import com.murmuler.organicstack.vo.RoomSummaryViewVO;
 
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
             public void run() {
                 InputStream is = null;
                 try {
-                    URL url = new URL("http://www.murmul-er.com/manage/download?middlePath=/room/roomId_" + room.getRoomId() + "&imageFileName=" + room.getRoomImg());
+                    URL url = new URL(Constants.ROOT_CONTEXT +"/manage/download?middlePath=/room/roomId_" + room.getRoomId() + "&imageFileName=" + room.getRoomImg());
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setDoInput(true);
                     conn.connect();
@@ -103,7 +104,6 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
         title.setText(titleText);
 
         ImageButton likeButton = itemLayout.findViewById(R.id.likeButton);
-        likeButton.setBackgroundColor(Color.WHITE);
         likeButton.setImageResource(R.drawable.heart_custom);
 
         TextView address = itemLayout.findViewById(R.id.address);
@@ -123,24 +123,20 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
         String detailText = "[" + room.getRentType() + "] 보증금 " + deposit+"만" + cost + "\n"
                           + room.getRoomType() + " " + pyeong + "평 / 관리비 " + manageCost;
         detail.setText(detailText);
-        itemLayout.setMinimumHeight(150);
         itemLayout.setId(room.getRoomId());
-//        Log.i("room set id", itemLayout.getId()+"");
-//        itemLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.i("아이템 클릭",v.getId()+"");
-//            }
-//        });
-        itemLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i("아이템 클릭", "roomId("+roomList.get(position).getRoomId()+")");
-                Intent intent = new Intent(context, DetailActivity.class);
-                intent.putExtra("roomId", v.getId()+"");
-                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            }
+        itemLayout.setOnClickListener(v -> {
+            Log.i("아이템 클릭", "roomId("+roomList.get(position).getRoomId()+")");
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("roomId", v.getId()+"");
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         });
+
+        ViewGroup.LayoutParams param = itemLayout.getLayoutParams();
+        if(param == null) {
+            param = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        param.height = 300;
+        itemLayout.setLayoutParams(param);
         return itemLayout;
     }
 }

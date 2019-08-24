@@ -11,13 +11,14 @@ import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.murmuler.organicstack.util.Constants;
 import com.murmuler.organicstack.util.MyWebClient;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DetailActivity extends AppCompatActivity {
-    private static final String ROOT_CONTEXT = "http://192.168.30.242:8089";
+    private static final String ROOT_CONTEXT = Constants.ROOT_CONTEXT;
     private final Handler handler = new Handler();
 //    private String memberId;
 //    private String nickname;

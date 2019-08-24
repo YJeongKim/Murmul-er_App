@@ -16,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +40,6 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -81,6 +81,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.murmuler.organicstack.util.Constants;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.murmuler.organicstack.vo.RoomSummaryViewVO;
 import com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
@@ -107,14 +108,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<Marker> currentMarker;
     private ArrayList<RoomSummaryViewVO> currentRoomList;
 
-    private static final String ROOT_CONTEXT = "http://www.murmul-er.com";
+    private static final String ROOT_CONTEXT = Constants.ROOT_CONTEXT;
     private static RequestQueue requestQueue;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
-    private static final int UPDATE_INTERVAL_MS = 1000;
-    private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
-    private static final int PLACE_PICKER_REQUEST=1;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
+//    private static final int UPDATE_INTERVAL_MS = 1000;
+//    private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
+//    private static final int PLACE_PICKER_REQUEST=1;
     boolean needRequest = false;
 
     String[] REQUIRED_PERMISSIONS = { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -143,10 +144,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSearch;
     @BindView(R.id.btnSlide)
     ImageButton btnSlide;
-    @BindView(R.id.popupLayout)
+    @BindView(R.id. popupLayout)
     LinearLayout popupLayout;
-    @BindView(R.id.popupBuilding)
-    LinearLayout popupBuilding;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
     @BindView(R.id.listView)
@@ -935,6 +934,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnOption.setSelected(false);
     }
 
+    public void changeBtnColor(View view) {
+        Button thisBtn = (Button)view;
+        ColorDrawable color = (ColorDrawable)thisBtn.getBackground();
+        int colorId = color.getColor();
+        System.out.println(colorId);
+    }
+
     public void buildingTypeClick(View view) {
         if (view.isSelected()) {
             for (Button button : selectedBuildingTypeButton) {
@@ -957,7 +963,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         checkBoxList = new ArrayList<>();
         String url = ROOT_CONTEXT + "/mobile/search";
-//        String url = "http://192.168.30.172:8088" + "/mobile/search";
 
         StringRequest request = new Utf8StringRequest(
                 Request.Method.GET,

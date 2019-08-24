@@ -11,6 +11,7 @@ import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.murmuler.organicstack.util.Constants;
 import com.murmuler.organicstack.util.MyWebClient;
 
 import butterknife.BindView;
@@ -46,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         loginView.addJavascriptInterface(new AndroidBridge(), "login");
-        loginView.loadUrl("http://www.murmul-er.com/mobile");
+        loginView.loadUrl(Constants.ROOT_CONTEXT +"/mobile");
     }
 
     private class AndroidBridge {

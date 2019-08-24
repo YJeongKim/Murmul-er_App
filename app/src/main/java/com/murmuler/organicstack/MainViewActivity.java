@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
+import com.murmuler.organicstack.util.Constants;
 import com.murmuler.organicstack.util.MyWebClient;
 
 import butterknife.BindView;
@@ -26,7 +27,7 @@ import butterknife.OnClick;
 
 
 public class MainViewActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    private static final String ROOT_CONTEXT = "http://192.168.30.242:8089";
+    private static final String ROOT_CONTEXT = Constants.ROOT_CONTEXT;
     private static final int MAIN_PAGE = 1;
     private static final int LIKE_PAGE = 2;
 
