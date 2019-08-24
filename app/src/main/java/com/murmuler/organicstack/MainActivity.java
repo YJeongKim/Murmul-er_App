@@ -5,19 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.Manifest;
 import android.app.AlertDialog;
@@ -30,13 +26,10 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Looper;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -76,9 +69,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.murmuler.organicstack.com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
-import com.murmuler.organicstack.com.murmuler.organicstack.vo.RoomSummaryViewVO;
+import com.murmuler.organicstack.adapter.TempAdapter;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.murmuler.organicstack.vo.RoomSummaryViewVO;
+import com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -131,8 +125,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSlide;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
-    @BindView(R.id.gridView)
-    GridView gridView;
+    @BindView(R.id.listView)
+    ListView listView;
     @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
     @BindView(R.id.botMain)
@@ -159,10 +153,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Glide.with(this).load(R.drawable.bottom_search_on).into(botSearch);
         Glide.with(this).load(R.drawable.bottom_like).into(botLike);
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
-
-
-        btnSlide = findViewById(R.id.btnSlide);
-        gridView = findViewById(R.id.gridView);
 
         currentMarker = new ArrayList<>();
         currentRoomList = new ArrayList<>();
@@ -218,15 +208,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         userName.setText(nickname);
 
         navigationView.setNavigationItemSelectedListener(this);
+        setSlideMenuEvent();
     }
 
     private void setSlideMenuEvent() {
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {   // 슬라이드 메뉴에서 아이템이 클릭됐을 때
-                AppCompatTextView tv = (AppCompatTextView)view;
-                Toast.makeText(MainActivity.this, tv.getText(), Toast.LENGTH_SHORT).show();
+//                System.out.println(view.toString());
+                Log.i("parent",parent.toString());
+                Log.i("view",view.toString());
+                Log.i("position",position+"");
+                Log.i("id",id+"");
+//                AppCompatTextView tv = (AppCompatTextView)view;
+//                Toast.makeText(MainActivity.this, tv.getText(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -670,8 +666,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
 
-                        gridView.removeAllViewsInLayout();
-                        gridView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
+                        listView.removeAllViewsInLayout();
+                        listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
                     }
                 },
                 new Response.ErrorListener() {

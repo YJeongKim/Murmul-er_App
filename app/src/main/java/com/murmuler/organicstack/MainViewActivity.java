@@ -13,12 +13,12 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
+import com.murmuler.organicstack.util.MyWebClient;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -98,14 +98,6 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
-    class MyWebClient extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            view.loadUrl(url);
-            return true;
-        }
-    }
-
     private class AndroidBridge {
         @JavascriptInterface
         public void search(final String keyword) {
@@ -149,7 +141,7 @@ public class MainViewActivity extends AppCompatActivity implements NavigationVie
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        System.out.println("selected " + id);
+//        System.out.println("selected " + id);
 
         switch (id) {
             case R.id.nav_search :

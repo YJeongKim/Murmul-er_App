@@ -8,9 +8,10 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.murmuler.organicstack.util.MyWebClient;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,14 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         loginView.addJavascriptInterface(new AndroidBridge(), "login");
         loginView.loadUrl("http://www.murmul-er.com/mobile");
-    }
-
-    class MyWebClient extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            view.loadUrl(url);
-            return true;
-        }
     }
 
     private class AndroidBridge {
