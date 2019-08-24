@@ -111,13 +111,19 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
         address.setText(addressText);
 
         TextView detail = itemLayout.findViewById(R.id.detail);
-        String cost = room.getMonthlyCost() == 0 ? "전세" : "월세 " + room.getMonthlyCost();
-        String manageCost = room.getManageCost() == 0 ? "없음" : "" + room.getManageCost();
-        detail.setText("[" + room.getRentType() + "] "
-                + "보증금 " + room.getDeposit() + " / " + cost + "\n"
-                + room.getRoomType() + " " + room.getArea() + " 관리비 " + manageCost
-        );
-        itemLayout.setMinimumHeight(450);
+        String deposit = room.getDeposit() + "";
+        if(deposit.length() > 4) {
+            String uk = deposit.substring(0, deposit.length() - 4);
+            String man = deposit.substring(deposit.length() - 4);
+            deposit = uk + "억" + man;
+        }
+        String pyeong = (int)(room.getArea() / 3.3) + "";
+        String cost = room.getMonthlyCost() == 0 ? "" : " / 월세 " + room.getMonthlyCost()+"만";
+        String manageCost = room.getManageCost() == 0 ? "없음" : room.getManageCost()+"만";
+        String detailText = "[" + room.getRentType() + "] 보증금 " + deposit+"만" + cost + "\n"
+                          + room.getRoomType() + " " + pyeong + "평 / 관리비 " + manageCost;
+        detail.setText(detailText);
+        itemLayout.setMinimumHeight(150);
         itemLayout.setId(room.getRoomId());
 //        Log.i("room set id", itemLayout.getId()+"");
 //        itemLayout.setOnClickListener(new View.OnClickListener() {
