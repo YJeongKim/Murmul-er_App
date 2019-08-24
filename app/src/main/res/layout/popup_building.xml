@@ -33,7 +33,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
-                android:onClick="buildingTypeClick"
+                android:onClick="changeBtnColor"
                 android:text="아파트"
                 android:textSize="20sp"/>
 
@@ -44,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
-                android:onClick="buildingTypeClick"
+                android:onClick="changeBtnColor"
                 android:text="빌라"
                 android:textSize="20sp" />
 
@@ -55,7 +55,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
                 android:layout_margin="5dp"
-                android:onClick="buildingTypeClick"
+                android:onClick="changeBtnColor"
                 android:text="오피스텔"
                 android:textSize="20sp" />
 
@@ -73,7 +73,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:background="@drawable/button_popup"
-                android:onClick="buildingTypeClick"
+                android:onClick="changeBtnColor"
                 android:text="투룸"
                 android:textSize="20sp" />
 
@@ -83,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_popup"
-                android:onClick="buildingTypeClick"
+                android:onClick="changeBtnColor"
                 android:layout_margin="5dp"
                 android:text="원룸"
                 android:textSize="20sp"/>

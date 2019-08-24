@@ -22,18 +22,4 @@
         </shape>
     </item>
 
-    <item android:state_hovered="true">
-        <shape>
-            <shape>
-                <solid
-                    android:color="#B6E2F8"/>
-
-                <stroke
-                    android:width="2dp"
-                    android:color="#5CC3F5"/>
-
-                <corners android:radius="8dp"/>
-            </shape>
-        </shape>
-    </item>
 </selector>
