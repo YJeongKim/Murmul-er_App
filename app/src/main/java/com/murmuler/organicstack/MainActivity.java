@@ -134,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<CheckBox> checkBoxList;
     private ArrayList<String> curCheckBoxArray;
     private ArrayList<String> confirmArray;
-
-//    private ArrayList<Button> selectedBuildingTypeButton;
     private ArrayList<Integer> selectedBT;
 
     @BindView(R.id.layout_main)
@@ -190,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         currentMarker = new ArrayList<>();
         currentRoomList = new ArrayList<>();
-//        selectedBuildingTypeButton = new ArrayList<>();
         selectedBT = new ArrayList<>();
         selectedBT.add(Constants.BUILDING_AP);
         selectedBT.add(Constants.BUILDING_OF);
@@ -797,13 +794,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 roomOptions.add(e.getAsString());
             }
 
-            boolean isContains = false;
-
             /* *********** 건물 유형 필터 *********** */
             if (selectedBT.size() != Constants.BUILDING_TYPE_SIZE) {
-                Log.i("룸타입", roomSummaryViewVO.getRoomType());
-                isContains = isBuildingTypeChecked(roomSummaryViewVO.getRoomType());
-                Log.i("있음?", isContains+"");
+                boolean isContains = isBuildingTypeChecked(roomSummaryViewVO.getRoomType());
                 if(!isContains)
                     continue;
             }
@@ -1017,22 +1010,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         clickApply(view);
         showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
     }
-
-//    public void buildingTypeClick(View view) {
-//        if (view.isSelected()) {
-//            for (Button button : selectedBuildingTypeButton) {
-//                if (button.getId() == view.getId()) {
-//                    selectedBuildingTypeButton.remove(button);
-//                    return;
-//                }
-//            }
-//            view.setSelected(false);
-//        } else {
-//            selectedBuildingTypeButton.add((Button) view);
-//            view.setSelected(true);
-//        }
-//        System.out.println(selectedBuildingTypeButton);
-//    }
 
     public void optionList(){
         if (requestQueue == null) {
