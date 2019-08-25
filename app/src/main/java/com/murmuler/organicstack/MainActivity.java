@@ -130,9 +130,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private ArrayList<Integer> selectedBT;
 
-    private ArrayList<Button> selectedBuildingTypeButton;
-    private SeekBar depositBar;
-    private SeekBar monthlyCostBar;
+    private int depositProgress = -1;
+    private int monthlyCostProgress = -1;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -192,8 +191,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         selectedBT.add(Constants.BUILDING_TR);
         selectedBT.add(Constants.BUILDING_VI);
 
-        selectedBuildingTypeButton = new ArrayList<>();
-
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -215,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
-
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
@@ -317,32 +313,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-            }
-        });
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                return false;
-            }
-        });
-
-        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-            }
-        });
-
         mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
             }
         });
-
     }
 
     LocationCallback locationCallback = new LocationCallback() {
@@ -485,17 +461,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (currentMarker != null) {
             clearMarker();
         }
-
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(currentLatLng);
-        markerOptions.title(markerTitle);
-        markerOptions.snippet(markerSnippet);
-        markerOptions.draggable(false);
-
-        currentMarker.add(mMap.addMarker(markerOptions));
-
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng);
         mMap.moveCamera(cameraUpdate);
     }
@@ -620,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         return;
                     }
                 }
-                break;
+            break;
         }
     }
 
@@ -701,8 +667,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public Bitmap resizeMarker(int id) {
-        Bitmap bitmap = null;
-        Bitmap smallMarker = null;
+        Bitmap bitmap;
         bitmap = ((BitmapDrawable) getResources().getDrawable(id)).getBitmap();
         return Bitmap.createScaledBitmap(bitmap, 150, 180, false);
     }
@@ -722,10 +687,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String utf8String = new String(response.data, "UTF-8");
                 return Response.success(utf8String, HttpHeaderParser.parseCacheHeaders(response));
             } catch (UnsupportedEncodingException e) {
-                // log error
                 return Response.error(new ParseError(e));
             } catch (Exception e) {
-                // log error
                 return Response.error(new ParseError(e));
             }
         }
@@ -774,57 +737,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 roomOptions.add(e.getAsString());
             }
 
-            /* *********** 건물 유형 필터 *********** */
             if (selectedBT.size() != Constants.BUILDING_TYPE_SIZE) {
                 boolean isContains = isBuildingTypeChecked(roomSummaryViewVO.getRoomType());
                 if (!isContains)
                     continue;
             }
 
-            int depositRange = 99999999;
-            if (depositBar != null) {
-                switch (depositBar.getProgress()) {
-                    case 0:
-                        depositRange = 0;
-                        break;
-                    case 1:
-                        depositRange = 300;
-                        break;
-                    case 2:
-                        depositRange = 500;
-                        break;
-                    case 3:
-                        depositRange = 1000;
-                        break;
-                    case 4:
-                        depositRange = 99999999;
-                        break;
-                }
+            int depositRange;
+            switch (depositProgress) {
+                case 0:
+                    depositRange = 0;
+                    break;
+                case 1:
+                    depositRange = 300;
+                    break;
+                case 2:
+                    depositRange = 500;
+                    break;
+                case 3:
+                    depositRange = 1000;
+                    break;
+                case 4:
+                    depositRange = 99999999;
+                    break;
+                default:
+                    depositRange = 99999999;
+                    break;
             }
 
             if (roomSummaryViewVO.getDeposit() > depositRange) {
                 continue;
             }
 
-            int monthlyCostRange = 99999;
-            if (monthlyCostBar != null) {
-                switch (monthlyCostBar.getProgress()) {
-                    case 0:
-                        monthlyCostRange = 0;
-                        break;
-                    case 1:
-                        monthlyCostRange = 30;
-                        break;
-                    case 2:
-                        monthlyCostRange = 50;
-                        break;
-                    case 3:
-                        monthlyCostRange = 100;
-                        break;
-                    case 4:
-                        monthlyCostRange = 99999;
-                        break;
-                }
+            int monthlyCostRange;
+            switch (monthlyCostProgress) {
+                case 0:
+                    monthlyCostRange = 0;
+                    break;
+                case 1:
+                    monthlyCostRange = 30;
+                    break;
+                case 2:
+                    monthlyCostRange = 50;
+                    break;
+                case 3:
+                    monthlyCostRange = 100;
+                    break;
+                case 4:
+                    monthlyCostRange = 99999;
+                    break;
+                default:
+                    monthlyCostRange = 99999;
+                    break;
             }
 
             if (roomSummaryViewVO.getMonthlyCost() > monthlyCostRange) {
@@ -936,7 +900,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.btnOption:
                 layoutId = R.layout.popup_option;
-                optionList();
+
                 break;
         }
 
@@ -955,35 +919,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             popupLayout.removeAllViews();
             popupLayout.addView(inflater.inflate(layoutId, null));
             searchBar.setVisibility(View.GONE);
-            button.setSelected(true);
+            switch (button.getId()) {
+                case R.id.btnBuildingType:
+                    initBuildingType();
+                    break;
+                case R.id.btnPeriod:
 
-            if (button.getId() == btnBuildingType.getId()) { // 눌린게 건물유형 일때
-                initBuildingType();
+                    break;
+                case R.id.btnDeposit:
+                    if (depositProgress < 0) depositProgress = 4;
+                    ((SeekBar) findViewById(R.id.depositBar)).setProgress(depositProgress);
+                    break;
+                case R.id.btnMonthlyCost:
+                    if (monthlyCostProgress < 0) monthlyCostProgress = 4;
+                    ((SeekBar) findViewById(R.id.monthlyCostBar)).setProgress(monthlyCostProgress);
+                    break;
+                case R.id.btnOption:
+                    optionList();
+                    break;
             }
+            button.setSelected(true);
         }
-
-        switch (button.getId()) {
-            case R.id.btnBuildingType:
-                break;
-            case R.id.btnPeriod:
-
-                break;
-            case R.id.btnDeposit:
-                if (depositBar != null) {
-                    ((SeekBar) findViewById(R.id.depositBar)).setProgress(depositBar.getProgress());
-                }
-                depositBar = findViewById(R.id.depositBar);
-                break;
-            case R.id.btnMonthlyCost:
-                if (monthlyCostBar != null) {
-                    ((SeekBar) findViewById(R.id.monthlyCostBar)).setProgress(monthlyCostBar.getProgress());
-                }
-                monthlyCostBar = findViewById(R.id.monthlyCostBar);
-                break;
-            case R.id.btnOption:
-                break;
-        }
-
     }
 
     private void initBuildingType() {
@@ -1020,6 +976,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clickApply(View view) {
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+        searchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void depositApply(View view) {
+        if (depositProgress > -1) {
+            depositProgress = ((SeekBar) findViewById(R.id.depositBar)).getProgress();
+        }
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+        searchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void monthlyCostApply(View view) {
+        if (monthlyCostProgress > -1) {
+            monthlyCostProgress = ((SeekBar) findViewById(R.id.monthlyCostBar)).getProgress();
+        }
         allSelectedFalse();
         popupLayout.removeAllViews();
         showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
