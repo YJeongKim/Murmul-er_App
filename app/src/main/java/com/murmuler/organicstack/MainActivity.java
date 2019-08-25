@@ -2,22 +2,15 @@ package com.murmuler.organicstack;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.CompoundButtonCompat;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -89,7 +83,6 @@ import com.murmuler.organicstack.adapter.RoomSummaryViewAdapter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,7 +91,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -107,19 +99,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private ArrayList<Marker> currentMarker;
-    private ArrayList<RoomSummaryViewVO> currentRoomList;
 
     private static final String ROOT_CONTEXT = Constants.ROOT_CONTEXT;
     private static RequestQueue requestQueue;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
+
 //    private static final int UPDATE_INTERVAL_MS = 1000;
 //    private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
 //    private static final int PLACE_PICKER_REQUEST=1;
+
     boolean needRequest = false;
 
-    String[] REQUIRED_PERMISSIONS = { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+    String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private LatLng currentPosition;
 
@@ -134,7 +127,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<CheckBox> checkBoxList;
     private ArrayList<String> curCheckBoxArray;
     private ArrayList<String> confirmArray;
+
     private ArrayList<Integer> selectedBT;
+
+    private ArrayList<Button> selectedBuildingTypeButton;
+    private SeekBar depositBar;
+    private SeekBar monthlyCostBar;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -144,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ImageButton btnSearch;
     @BindView(R.id.btnSlide)
     ImageButton btnSlide;
-    @BindView(R.id. popupLayout)
+    @BindView(R.id.popupLayout)
     LinearLayout popupLayout;
     @BindView(R.id.btnBuildingType)
     Button btnBuildingType;
@@ -187,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Glide.with(this).load(R.drawable.bottom_more).into(botMore);
 
         currentMarker = new ArrayList<>();
-        currentRoomList = new ArrayList<>();
         selectedBT = new ArrayList<>();
         selectedBT.add(Constants.BUILDING_AP);
         selectedBT.add(Constants.BUILDING_OF);
@@ -195,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         selectedBT.add(Constants.BUILDING_TR);
         selectedBT.add(Constants.BUILDING_VI);
 
+        selectedBuildingTypeButton = new ArrayList<>();
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
@@ -230,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         String keyword = intent.getExtras().getString("keyword");
-        if(keyword != null) {
+        if (keyword != null) {
             Log.i("키워드값", keyword);
             editSearch.setText(keyword);
         }
@@ -249,19 +247,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setSlideMenuEvent() {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {   // 슬라이드 메뉴에서 아이템이 클릭됐을 때
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {   // 슬라이드 메뉴에서 아이템이 클릭됐을 때
 //                System.out.println(view.toString());
-                Log.i("parent",parent.toString());
-                Log.i("view",view.toString());
-                Log.i("position",position+"");
-                Log.i("id",id+"");
+                Log.i("parent", parent.toString());
+                Log.i("view", view.toString());
+                Log.i("position", position + "");
+                Log.i("id", id + "");
 //                AppCompatTextView tv = (AppCompatTextView)view;
 //                Toast.makeText(MainActivity.this, tv.getText(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        ((SlidingUpPanelLayout)mLayout).addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        ((SlidingUpPanelLayout) mLayout).addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
             }
@@ -270,16 +267,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
                 Log.i("상태변경", "onPanelStateChanged " + newState);
                 switch (newState.toString()) {
-                    case "EXPANDED" :
+                    case "EXPANDED":
                         Glide.with(MainActivity.this).load(R.drawable.angle_down_custom).into(btnSlide);
                         popupStatus = "EXPANDED";
                         break;
-                    case "COLLAPSED" :
+                    case "COLLAPSED":
                         Glide.with(MainActivity.this).load(R.drawable.angle_up_custom).into(btnSlide);
                         popupStatus = "COLLAPSED";
                         break;
-                    case "DRAGGING" :
-                        if(popupStatus.equals("COLLAPSED") && popupLayout.getChildCount()==1) {
+                    case "DRAGGING":
+                        if (popupStatus.equals("COLLAPSED") && popupLayout.getChildCount() == 1) {
                             allSelectedFalse();
                             popupLayout.removeAllViews();
                             searchBar.setVisibility(View.VISIBLE);
@@ -300,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
 
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-            hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
             startLocationUpdates();
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
@@ -326,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 return false;
@@ -339,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener(){
+        mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
                 showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
@@ -362,9 +359,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 setCurrentLocation(location, markerTitle, markerSnippet);
 
-                if(!editSearch.getText().equals("")) {
+                if (!editSearch.getText().equals("")) {
                     btnSearch.performClick();
-                    Log.i("검색","버튼눌렀다");
+                    Log.i("검색", "버튼눌렀다");
                 }
             }
         }
@@ -383,11 +380,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 
-            if(checkPermission()) {
+            if (checkPermission()) {
                 mMap.setMyLocationEnabled(true);
             }
         }
-    };
+    }
+
+    ;
 
     @Override
     protected void onStart() {
@@ -405,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onStop() {
         super.onStop();
 
-        if(mFusedLocationClient != null) {
+        if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
@@ -502,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setDefaultLocation() {
-        LatLng DEFAULT_LOCATION =  new LatLng(37.4839778342191, 126.955578840377);
+        LatLng DEFAULT_LOCATION = new LatLng(37.4839778342191, 126.955578840377);
         String markerTitle = "위치정보 가져올 수 없음";
         String markerSnippet = "위치 퍼미션과 GPS 활성 여부를 확인하세요.";
 
@@ -527,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int hasCoarseLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
 
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-            hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
+                hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
         return false;
@@ -540,8 +539,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onRequestPermissionsResult(int permsRequestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grandResults) {
-        if ( permsRequestCode == PERMISSIONS_REQUEST_CODE &&
-             grandResults.length == REQUIRED_PERMISSIONS.length) {
+        if (permsRequestCode == PERMISSIONS_REQUEST_CODE &&
+                grandResults.length == REQUIRED_PERMISSIONS.length) {
 
             // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
             boolean checkResult = true;
@@ -556,24 +555,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             if (checkResult) {
                 startLocationUpdates();
-            }
-            else {
+            } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[1])) {
 
                     // 사용자가 거부만 선택한 경우에는 앱을 다시 실행하여 허용을 선택하면 앱을 사용할 수 있습니다.
                     Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 앱을 다시 실행하여 퍼미션을 허용해주세요. ",
-                    Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
 
                         @Override
                         public void onClick(View view) {
                             finish();
                         }
                     }).show();
-                }else {
+                } else {
                     // "다시 묻지 않음"을 사용자가 체크하고 거부를 선택한 경우에는 설정(앱 정보)에서 퍼미션을 허용해야 앱을 사용할 수 있습니다.
                     Snackbar.make(mLayout, "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ",
-                    Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
+                            Snackbar.LENGTH_INDEFINITE).setAction("확인", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             finish();
@@ -626,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void showRoomList (LatLngBounds latLngBounds) {
+    public void showRoomList(LatLngBounds latLngBounds) {
         String[] southWestSpl = latLngBounds.southwest.toString().substring(9).split(",");
         String southWest = southWestSpl[0] + ", " + southWestSpl[1];
         String[] northEastSpl = latLngBounds.northeast.toString().substring(9).split(",");
@@ -642,32 +640,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onResponse(String response) {
                         List<RoomSummaryViewVO> roomList = getRoomList(response);
-                        if (roomList == null) {
+                        System.out.println(roomList.size());
+                        if (roomList == null || roomList.size() == 0) {
+                            clearMarker();
                             Toast.makeText(getApplicationContext(), "검색 된 매물이 없습니다.", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        int i = 0;
-                        while(currentRoomList.size() > i) {
-                            int j = 0;
-                            while (roomList.size() > j) {
-                                if (currentRoomList.get(i).getRoomId() == roomList.get(j).getRoomId()) {
-                                    roomList.remove(j);
-                                    break;
-                                }
-                                j++;
-                            }
-                            if (roomList.size() > 0 && roomList.size() == j) {
-                                currentRoomList.remove(i);
-                                continue;
-                            }
-                            i++;
-                        }
-                        for (RoomSummaryViewVO room : roomList) {
-                            currentRoomList.add(room);
-                        }
+
                         if (currentMarker != null) {
                             clearMarker();
-                            for (RoomSummaryViewVO room : currentRoomList) {
+                            for (RoomSummaryViewVO room : roomList) {
                                 if (room.getPostType().equals("게시중")) {
                                     LatLng position = new LatLng(room.getLatitude().doubleValue(), room.getLongitude().doubleValue());
                                     MarkerOptions markerOptions = new MarkerOptions();
@@ -697,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 }
                             }
                             listView.removeAllViewsInLayout();
-                            listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), currentRoomList));
+                            listView.setAdapter(new RoomSummaryViewAdapter(getApplicationContext(), roomList));
                         }
                     }
                 },
@@ -751,16 +733,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public List<RoomSummaryViewVO> getRoomList(String response) {
         List<RoomSummaryViewVO> roomList = new ArrayList<>();
-        JsonParser jsonParser =  new JsonParser();
+        JsonParser jsonParser = new JsonParser();
 
         Object obj = jsonParser.parse(response);
         JsonObject jsonObj = (JsonObject) obj;
 
-//        boolean buildingTypeFlag = false;
         int check = 0;
 
         for (int i = 0; i < jsonObj.size(); i++) {
-//            buildingTypeFlag = false;
             String temp = jsonObj.get("item" + i).toString();
             Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
 
@@ -797,24 +777,66 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             /* *********** 건물 유형 필터 *********** */
             if (selectedBT.size() != Constants.BUILDING_TYPE_SIZE) {
                 boolean isContains = isBuildingTypeChecked(roomSummaryViewVO.getRoomType());
-                if(!isContains)
+                if (!isContains)
                     continue;
             }
 
-//            System.out.println("====================================================================================================================================");
-//            System.out.println("체크 리스트 : " + curCheckBoxArray);
-//            System.out.println("옵션 리스트 : " + roomOptions);
-//            System.out.println("====================================================================================================================================");
+            int depositRange = 99999999;
+            if (depositBar != null) {
+                switch (depositBar.getProgress()) {
+                    case 0:
+                        depositRange = 0;
+                        break;
+                    case 1:
+                        depositRange = 300;
+                        break;
+                    case 2:
+                        depositRange = 500;
+                        break;
+                    case 3:
+                        depositRange = 1000;
+                        break;
+                    case 4:
+                        depositRange = 99999999;
+                        break;
+                }
+            }
+
+            if (roomSummaryViewVO.getDeposit() > depositRange) {
+                continue;
+            }
+
+            int monthlyCostRange = 99999;
+            if (monthlyCostBar != null) {
+                switch (monthlyCostBar.getProgress()) {
+                    case 0:
+                        monthlyCostRange = 0;
+                        break;
+                    case 1:
+                        monthlyCostRange = 30;
+                        break;
+                    case 2:
+                        monthlyCostRange = 50;
+                        break;
+                    case 3:
+                        monthlyCostRange = 100;
+                        break;
+                    case 4:
+                        monthlyCostRange = 99999;
+                        break;
+                }
+            }
+
+            if (roomSummaryViewVO.getMonthlyCost() > monthlyCostRange) {
+                continue;
+            }
 
             if(curCheckBoxArray != null){
                 if(roomOptions.size() < curCheckBoxArray.size()){
-//                    System.out.println("체크된 옵션이 room의 옵션보다 많다");
                     continue;
                 }
-                // 포문 돌면서 optionArray/roomOptions 비교해서 넣기
                 for(int j=0; j<curCheckBoxArray.size(); j++){
                     if(roomOptions.contains(curCheckBoxArray.get(j)) == false){
-//                        System.out.println("체크된 옵션을 room 옵션이 가지고 있지 않다");
                         check = 1;
                         break;
                     }
@@ -832,6 +854,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return roomList;
     }
+
 
     private boolean isBuildingTypeChecked(String roomType) {
         boolean isContains = false;
@@ -864,14 +887,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int i = 0;
         while (currentMarker.size() > i) {
             if (currentMarker.get(i).isInfoWindowShown() == false) {
-//                System.out.println("currentMarker index: " + i + ", flag : " + currentMarker.get(0).isInfoWindowShown());
                 currentMarker.get(i).remove();
                 currentMarker.remove(i);
                 continue;
             }
             i++;
         }
-//        System.out.println("current marker : " + currentMarker.size());
     }
 
     public void clickSlide(View view) {
@@ -940,34 +961,57 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 initBuildingType();
             }
         }
+
+        switch (button.getId()) {
+            case R.id.btnBuildingType:
+                break;
+            case R.id.btnPeriod:
+
+                break;
+            case R.id.btnDeposit:
+                if (depositBar != null) {
+                    ((SeekBar) findViewById(R.id.depositBar)).setProgress(depositBar.getProgress());
+                }
+                depositBar = findViewById(R.id.depositBar);
+                break;
+            case R.id.btnMonthlyCost:
+                if (monthlyCostBar != null) {
+                    ((SeekBar) findViewById(R.id.monthlyCostBar)).setProgress(monthlyCostBar.getProgress());
+                }
+                monthlyCostBar = findViewById(R.id.monthlyCostBar);
+                break;
+            case R.id.btnOption:
+                break;
+        }
+
     }
 
     private void initBuildingType() {
-        for (int buildingType : selectedBT) {
-            switch (buildingType) {
-                case Constants.BUILDING_AP :
-                    Button AP = findViewById(R.id.AP);
-                    AP.setSelected(true);
-                    break;
-                case Constants.BUILDING_OF :
-                    Button OF = findViewById(R.id.OF);
-                    OF.setSelected(true);
-                    break;
-                case Constants.BUILDING_VI :
-                    Button VI = findViewById(R.id.VI);
-                    VI.setSelected(true);
-                    break;
-                case Constants.BUILDING_TR :
-                    Button TR = findViewById(R.id.TR);
-                    TR.setSelected(true);
-                    break;
-                case Constants.BUILDING_OR :
-                    Button OR = findViewById(R.id.OR);
-                    OR.setSelected(true);
-                    break;
+            for (int buildingType : selectedBT) {
+                switch (buildingType) {
+                    case Constants.BUILDING_AP:
+                        Button AP = findViewById(R.id.AP);
+                        AP.setSelected(true);
+                        break;
+                    case Constants.BUILDING_OF:
+                        Button OF = findViewById(R.id.OF);
+                        OF.setSelected(true);
+                        break;
+                    case Constants.BUILDING_VI:
+                        Button VI = findViewById(R.id.VI);
+                        VI.setSelected(true);
+                        break;
+                    case Constants.BUILDING_TR:
+                        Button TR = findViewById(R.id.TR);
+                        TR.setSelected(true);
+                        break;
+                    case Constants.BUILDING_OR:
+                        Button OR = findViewById(R.id.OR);
+                        OR.setSelected(true);
+                        break;
+                }
             }
         }
-    }
 
     public void clickCancel(View view) {
         allSelectedFalse();
@@ -978,6 +1022,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void clickApply(View view) {
         allSelectedFalse();
         popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
         searchBar.setVisibility(View.VISIBLE);
     }
 

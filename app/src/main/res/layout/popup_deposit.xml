@@ -28,11 +28,11 @@
             android:textColor="#000000" />
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/depositBar"
             android:layout_width="251dp"
             android:layout_height="wrap_content"
             android:max="4"
-            android:progress="2"
+            android:progress="4"
             android:progressDrawable="@drawable/seekbar"
             android:thumb="@drawable/seekbar_thumb" />
 
