@@ -27,7 +27,7 @@
             android:weightSum="3">
 
             <Button
-                android:id="@+id/apartment"
+                android:id="@+id/AP"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -38,7 +38,7 @@
                 android:textSize="20sp"/>
 
             <Button
-                android:id="@+id/villa"
+                android:id="@+id/VI"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -49,7 +49,7 @@
                 android:textSize="20sp" />
 
             <Button
-                android:id="@+id/officeTel"
+                android:id="@+id/OF"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -67,7 +67,7 @@
             android:weightSum="2">
 
             <Button
-                android:id="@+id/twoRoom"
+                android:id="@+id/TR"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -78,7 +78,7 @@
                 android:textSize="20sp" />
 
             <Button
-                android:id="@+id/oneRoom"
+                android:id="@+id/OR"
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -114,7 +114,7 @@
             android:background="#B6E2F8"
             android:textSize="23dp"
             android:text="적용하기"
-            android:onClick="clickApply"/>
+            android:onClick="clickApplyBT"/>
 
     </LinearLayout>
 

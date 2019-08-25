@@ -17,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -134,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<String> curCheckBoxArray;
     private ArrayList<String> confirmArray;
 
-    private ArrayList<Button> selectedBuildingTypeButton;
+//    private ArrayList<Button> selectedBuildingTypeButton;
+    private ArrayList<Integer> selectedBT;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @BindView(R.id.drawerLayout)
     DrawerLayout drawerLayout;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,7 +190,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         currentMarker = new ArrayList<>();
         currentRoomList = new ArrayList<>();
-        selectedBuildingTypeButton = new ArrayList<>();
+//        selectedBuildingTypeButton = new ArrayList<>();
+        selectedBT = new ArrayList<>();
+        selectedBT.add(Constants.BUILDING_AP);
+        selectedBT.add(Constants.BUILDING_OF);
+        selectedBT.add(Constants.BUILDING_OR);
+        selectedBT.add(Constants.BUILDING_TR);
+        selectedBT.add(Constants.BUILDING_VI);
+
 
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
@@ -749,11 +759,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Object obj = jsonParser.parse(response);
         JsonObject jsonObj = (JsonObject) obj;
 
-        boolean buildingTypeFlag = false;
+//        boolean buildingTypeFlag = false;
         int check = 0;
 
         for (int i = 0; i < jsonObj.size(); i++) {
-            buildingTypeFlag = false;
+//            buildingTypeFlag = false;
             String temp = jsonObj.get("item" + i).toString();
             Object object = jsonParser.parse(temp.substring(3, temp.length() - 3).replace("\\\"", "\""));
 
@@ -787,14 +797,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 roomOptions.add(e.getAsString());
             }
 
-            if (selectedBuildingTypeButton != null) {
-                for (Button button : selectedBuildingTypeButton) {
-                    if (roomSummaryViewVO.getRoomType().equals(button.getText().toString())) {
-                        buildingTypeFlag = true;
-                    }
-                }
+            boolean isContains = false;
+
+            /* *********** 건물 유형 필터 *********** */
+            if (selectedBT.size() != Constants.BUILDING_TYPE_SIZE) {
+                Log.i("룸타입", roomSummaryViewVO.getRoomType());
+                isContains = isBuildingTypeChecked(roomSummaryViewVO.getRoomType());
+                Log.i("있음?", isContains+"");
+                if(!isContains)
+                    continue;
             }
-            if (buildingTypeFlag == false) continue;
 
 //            System.out.println("====================================================================================================================================");
 //            System.out.println("체크 리스트 : " + curCheckBoxArray);
@@ -828,18 +840,45 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return roomList;
     }
 
+    private boolean isBuildingTypeChecked(String roomType) {
+        boolean isContains = false;
+        switch (roomType) {
+            case "아파트" :
+                if (selectedBT.contains(Constants.BUILDING_AP))
+                    isContains = true;
+                break;
+            case "빌라" :
+                if (selectedBT.contains(Constants.BUILDING_VI))
+                    isContains = true;
+                break;
+            case "오피스텔" :
+                if (selectedBT.contains(Constants.BUILDING_OF))
+                    isContains = true;
+                break;
+            case "투룸" :
+                if (selectedBT.contains(Constants.BUILDING_TR))
+                    isContains = true;
+                break;
+            case "원룸" :
+                if (selectedBT.contains(Constants.BUILDING_OR))
+                    isContains = true;
+                break;
+        }
+        return isContains;
+    }
+
     public void clearMarker() {
         int i = 0;
         while (currentMarker.size() > i) {
             if (currentMarker.get(i).isInfoWindowShown() == false) {
-                System.out.println("currentMarker index: " + i + ", flag : " + currentMarker.get(0).isInfoWindowShown());
+//                System.out.println("currentMarker index: " + i + ", flag : " + currentMarker.get(0).isInfoWindowShown());
                 currentMarker.get(i).remove();
                 currentMarker.remove(i);
                 continue;
             }
             i++;
         }
-        System.out.println("current marker : " + currentMarker.size());
+//        System.out.println("current marker : " + currentMarker.size());
     }
 
     public void clickSlide(View view) {
@@ -864,14 +903,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void clickFilter(View view) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        Button button = (Button) findViewById(view.getId());
+        Button button = findViewById(view.getId());
         int layoutId = popupLayout.getId();
         SlidingUpPanelLayout slidingPanel = (SlidingUpPanelLayout)mLayout;
 
         switch (view.getId()) {
             case R.id.btnBuildingType:
                 layoutId = R.layout.popup_building;
-
                 break;
             case R.id.btnPeriod:
                 layoutId = R.layout.popup_period;
@@ -905,13 +943,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             searchBar.setVisibility(View.GONE);
             button.setSelected(true);
 
-            if(button.getId() == btnBuildingType.getId()) {
-                for (Button b : selectedBuildingTypeButton) {
-                    ((Button) findViewById(b.getId())).setSelected(true);
-                }
+            if (button.getId() == btnBuildingType.getId()) { // 눌린게 건물유형 일때
+                initBuildingType();
             }
         }
+    }
 
+    private void initBuildingType() {
+        for (int buildingType : selectedBT) {
+            switch (buildingType) {
+                case Constants.BUILDING_AP :
+                    Button AP = findViewById(R.id.AP);
+                    AP.setSelected(true);
+                    break;
+                case Constants.BUILDING_OF :
+                    Button OF = findViewById(R.id.OF);
+                    OF.setSelected(true);
+                    break;
+                case Constants.BUILDING_VI :
+                    Button VI = findViewById(R.id.VI);
+                    VI.setSelected(true);
+                    break;
+                case Constants.BUILDING_TR :
+                    Button TR = findViewById(R.id.TR);
+                    TR.setSelected(true);
+                    break;
+                case Constants.BUILDING_OR :
+                    Button OR = findViewById(R.id.OR);
+                    OR.setSelected(true);
+                    break;
+            }
+        }
     }
 
     public void clickCancel(View view) {
@@ -936,26 +998,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void changeBtnColor(View view) {
         Button thisBtn = (Button)view;
-        ColorDrawable color = (ColorDrawable)thisBtn.getBackground();
-        int colorId = color.getColor();
-        System.out.println(colorId);
+        if (thisBtn.isSelected()) {
+            thisBtn.setSelected(false);
+        } else {
+            thisBtn.setSelected(true);
+        }
     }
 
-    public void buildingTypeClick(View view) {
-        if (view.isSelected()) {
-            for (Button button : selectedBuildingTypeButton) {
-                if (button.getId() == view.getId()) {
-                    selectedBuildingTypeButton.remove(button);
-                    return;
-                }
+    public void clickApplyBT(View view) {
+        selectedBT.clear();
+        int[] btnIds = { R.id.AP, R.id.VI, R.id.OF, R.id.TR, R.id.OR };
+        for (int i = 0; i < btnIds.length; i++) {
+            Button btn = findViewById(btnIds[i]);
+            if (btn.isSelected()) {
+                selectedBT.add(Constants.BUILDING_AP + i);
             }
-            view.setSelected(false);
-        } else {
-            selectedBuildingTypeButton.add((Button) view);
-            view.setSelected(true);
         }
-        System.out.println(selectedBuildingTypeButton);
+        clickApply(view);
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
     }
+
+//    public void buildingTypeClick(View view) {
+//        if (view.isSelected()) {
+//            for (Button button : selectedBuildingTypeButton) {
+//                if (button.getId() == view.getId()) {
+//                    selectedBuildingTypeButton.remove(button);
+//                    return;
+//                }
+//            }
+//            view.setSelected(false);
+//        } else {
+//            selectedBuildingTypeButton.add((Button) view);
+//            view.setSelected(true);
+//        }
+//        System.out.println(selectedBuildingTypeButton);
+//    }
 
     public void optionList(){
         if (requestQueue == null) {
