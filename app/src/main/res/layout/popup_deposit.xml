@@ -95,7 +95,7 @@
             android:background="#B6E2F8"
             android:textSize="23dp"
             android:text="적용하기"
-            android:onClick="clickApply"/>
+            android:onClick="depositApply"/>
 
     </LinearLayout>
 
