@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         selectedBT.add(Constants.BUILDING_TR);
         selectedBT.add(Constants.BUILDING_VI);
 
+
         // 주기적으로 위치값을 받아서 현재 위치를 Setting 해주어야 할 경우 주석을 풀 것
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -412,8 +413,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     1
             );
         } catch (IOException ioException) {
-            //네트워크 문제
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
             return "지오코더 서비스 사용불가";
         } catch (IllegalArgumentException illegalArgumentException) {
             Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     1
             );
         } catch (IOException ioException) {
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
         } catch (IllegalArgumentException illegalArgumentException) {
             Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
         }
@@ -806,27 +806,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 case 1: rentRange = 30; break;
                 case 2: rentRange = 180; break;
                 case 3: rentRange = 365; break;
-                case 4: rentRange = 99999;break;
+                case 4: rentRange = 99999; break;
             }
 
             switch(roomSummaryViewVO.getPeriodUnit()) {
                 case "주": rentD = periodNum * 7; break;
                 case "개월": rentD = periodNum * 30; break;
                 case "년": rentD = periodNum * 365; break;
-                //default : rentD = 365; break;
             }
 
             if (rentD > rentRange) {
                 continue;
             }
 
-
             if(curCheckBoxArray != null){
-                if(roomOptions.size() < curCheckBoxArray.size()){
+                if (roomOptions.size() < curCheckBoxArray.size()){
                     continue;
                 }
-                for(int j=0; j<curCheckBoxArray.size(); j++){
-                    if(roomOptions.contains(curCheckBoxArray.get(j)) == false){
+                for (int j=0; j<curCheckBoxArray.size(); j++){
+                    if (roomOptions.contains(curCheckBoxArray.get(j)) == false){
                         check = 1;
                         break;
                     }
@@ -834,10 +832,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(check == 0){
                     roomSummaryViewVO.setRoomOptions(roomOptions);
                     roomList.add(roomSummaryViewVO);
-                }else{
+                } else{
                     check = 0;
                 }
-            }else{
+            } else{
                 roomSummaryViewVO.setRoomOptions(roomOptions);
                 roomList.add(roomSummaryViewVO);
             }
@@ -994,6 +992,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     break;
             }
         }
+
     }
 
     public void clickCancel(View view) {
