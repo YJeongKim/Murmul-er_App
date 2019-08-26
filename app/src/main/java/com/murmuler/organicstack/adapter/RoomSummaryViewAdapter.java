@@ -103,8 +103,8 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
         if(titleText.length() >= 14) titleText = titleText.substring(0,12) + "...";
         title.setText(titleText);
 
-        ImageButton likeButton = itemLayout.findViewById(R.id.likeButton);
-        likeButton.setImageResource(R.drawable.heart_custom);
+//        ImageButton likeButton = itemLayout.findViewById(R.id.likeButton);
+//        likeButton.setImageResource(R.drawable.heart_custom);
 
         TextView address = itemLayout.findViewById(R.id.address);
         String addressText = room.getSido() + " " + room.getSigungu() + " " + room.getRoadname();
