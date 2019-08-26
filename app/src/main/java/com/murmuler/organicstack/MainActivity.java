@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private int depositProgress = -1;
     private int monthlyCostProgress = -1;
+    private int periodValue = -1;
 
     @BindView(R.id.layout_main)
     View mLayout;
@@ -238,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         navigationView.setNavigationItemSelectedListener(this);
         curCheckBoxArray = new ArrayList<>();
         setSlideMenuEvent();
+
     }
 
     private void setSlideMenuEvent() {
@@ -795,6 +797,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 continue;
             }
 
+            int periodNum = roomSummaryViewVO.getPeriodNum();
+            int rentD = 1;
+
+            int rentRange = 99999;
+            switch(periodValue) {
+                case 0: rentRange = 0; break;
+                case 1: rentRange = 30; break;
+                case 2: rentRange = 180; break;
+                case 3: rentRange = 365; break;
+                case 4: rentRange = 99999;break;
+            }
+
+            switch(roomSummaryViewVO.getPeriodUnit()) {
+                case "주": rentD = periodNum * 7; break;
+                case "개월": rentD = periodNum * 30; break;
+                case "년": rentD = periodNum * 365; break;
+                //default : rentD = 365; break;
+            }
+
+            if (rentD > rentRange) {
+                continue;
+            }
+
+
             if(curCheckBoxArray != null){
                 if(roomOptions.size() < curCheckBoxArray.size()){
                     continue;
@@ -924,7 +950,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     initBuildingType();
                     break;
                 case R.id.btnPeriod:
-
+                    if (periodValue < 0) periodValue = 4;
+                    ((SeekBar) findViewById(R.id.periodSeekBar)).setProgress(periodValue);
                     break;
                 case R.id.btnDeposit:
                     if (depositProgress < 0) depositProgress = 4;
@@ -943,31 +970,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initBuildingType() {
-            for (int buildingType : selectedBT) {
-                switch (buildingType) {
-                    case Constants.BUILDING_AP:
-                        Button AP = findViewById(R.id.AP);
-                        AP.setSelected(true);
-                        break;
-                    case Constants.BUILDING_OF:
-                        Button OF = findViewById(R.id.OF);
-                        OF.setSelected(true);
-                        break;
-                    case Constants.BUILDING_VI:
-                        Button VI = findViewById(R.id.VI);
-                        VI.setSelected(true);
-                        break;
-                    case Constants.BUILDING_TR:
-                        Button TR = findViewById(R.id.TR);
-                        TR.setSelected(true);
-                        break;
-                    case Constants.BUILDING_OR:
-                        Button OR = findViewById(R.id.OR);
-                        OR.setSelected(true);
-                        break;
-                }
+        for (int buildingType : selectedBT) {
+            switch (buildingType) {
+                case Constants.BUILDING_AP:
+                    Button AP = findViewById(R.id.AP);
+                    AP.setSelected(true);
+                    break;
+                case Constants.BUILDING_OF:
+                    Button OF = findViewById(R.id.OF);
+                    OF.setSelected(true);
+                    break;
+                case Constants.BUILDING_VI:
+                    Button VI = findViewById(R.id.VI);
+                    VI.setSelected(true);
+                    break;
+                case Constants.BUILDING_TR:
+                    Button TR = findViewById(R.id.TR);
+                    TR.setSelected(true);
+                    break;
+                case Constants.BUILDING_OR:
+                    Button OR = findViewById(R.id.OR);
+                    OR.setSelected(true);
+                    break;
             }
         }
+    }
 
     public void clickCancel(View view) {
         allSelectedFalse();
@@ -976,6 +1003,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void clickApply(View view) {
+        allSelectedFalse();
+        popupLayout.removeAllViews();
+        showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
+        searchBar.setVisibility(View.VISIBLE);
+    }
+
+    public void periodApply(View view){
+        if(periodValue > -1) {
+            periodValue = ((SeekBar) findViewById(R.id.periodSeekBar)).getProgress();
+        }
         allSelectedFalse();
         popupLayout.removeAllViews();
         showRoomList(mMap.getProjection().getVisibleRegion().latLngBounds);
