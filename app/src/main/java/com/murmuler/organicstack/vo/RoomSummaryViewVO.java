@@ -18,9 +18,9 @@ public class RoomSummaryViewVO {
     private String roomType;
     private String rentType;
     private double area;
-    private int deposit;
-    private int monthlyCost;
-    private int manageCost;
+    private String deposit;
+    private String monthlyCost;
+    private String manageCost;
     private Date writeDate;
     private int views;
     private String roomImg;
@@ -28,7 +28,7 @@ public class RoomSummaryViewVO {
 
     public RoomSummaryViewVO() { }
 
-    public RoomSummaryViewVO(int roomId, BigDecimal latitude, BigDecimal longitude, String postType, String title, String sido, String sigungu, String roadname, int periodNum, String periodUnit, String roomType, String rentType, double area, int deposit, int monthlyCost, int manageCost, Date writeDate, int views, String roomImg, List<String> roomOptions) {
+    public RoomSummaryViewVO(int roomId, BigDecimal latitude, BigDecimal longitude, String postType, String title, String sido, String sigungu, String roadname, int periodNum, String periodUnit, String roomType, String rentType, double area, String deposit, String monthlyCost, String manageCost, Date writeDate, int views, String roomImg, List<String> roomOptions) {
         this.roomId = roomId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -155,27 +155,27 @@ public class RoomSummaryViewVO {
         this.area = area;
     }
 
-    public int getDeposit() {
+    public String getDeposit() {
         return deposit;
     }
 
-    public void setDeposit(int deposit) {
+    public void setDeposit(String deposit) {
         this.deposit = deposit;
     }
 
-    public int getMonthlyCost() {
+    public String getMonthlyCost() {
         return monthlyCost;
     }
 
-    public void setMonthlyCost(int monthlyCost) {
+    public void setMonthlyCost(String monthlyCost) {
         this.monthlyCost = monthlyCost;
     }
 
-    public int getManageCost() {
+    public String getManageCost() {
         return manageCost;
     }
 
-    public void setManageCost(int manageCost) {
+    public void setManageCost(String manageCost) {
         this.manageCost = manageCost;
     }
 
