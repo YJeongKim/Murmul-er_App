@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/layoutPeriod"
     android:background="#ffffff">
 
     <TextView
@@ -28,11 +29,11 @@
             android:textColor="#000000" />
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/periodSeekBar"
             android:layout_width="251dp"
             android:layout_height="wrap_content"
             android:max="4"
-            android:progress="2"
+            android:progress="4"
             android:progressDrawable="@drawable/seekbar"
             android:thumb="@drawable/seekbar_thumb" />
 
@@ -95,7 +96,7 @@
             android:background="#B6E2F8"
             android:textSize="23dp"
             android:text="적용하기"
-            android:onClick="clickApply"/>
+            android:onClick="periodApply"/>
 
     </LinearLayout>
 
