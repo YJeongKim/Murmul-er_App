@@ -111,16 +111,11 @@ public class RoomSummaryViewAdapter extends BaseAdapter {
         address.setText(addressText);
 
         TextView detail = itemLayout.findViewById(R.id.detail);
-        String deposit = room.getDeposit() + "";
-        if(deposit.length() > 4) {
-            String uk = deposit.substring(0, deposit.length() - 4);
-            String man = deposit.substring(deposit.length() - 4);
-            deposit = uk + "억" + man;
-        }
+        String deposit = room.getDeposit();
         String pyeong = (int)(room.getArea() / 3.3) + "";
-        String cost = room.getMonthlyCost() == 0 ? "" : " / 월세 " + room.getMonthlyCost()+"만";
-        String manageCost = room.getManageCost() == 0 ? "없음" : room.getManageCost()+"만";
-        String detailText = "[" + room.getRentType() + "] 보증금 " + deposit+"만" + cost + "\n"
+        String cost = room.getMonthlyCost().equals("없음") ? "" : " / 월세 " + room.getMonthlyCost();
+        String manageCost = room.getManageCost().equals("없음") ? "없음" : room.getManageCost();
+        String detailText = "[" + room.getRentType() + "] 보증금 " + deposit + cost + "\n"
                           + room.getRoomType() + " " + pyeong + "평 / 관리비 " + manageCost;
         detail.setText(detailText);
         itemLayout.setId(room.getRoomId());

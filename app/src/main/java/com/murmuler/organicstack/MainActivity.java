@@ -729,9 +729,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             roomSummaryViewVO.setRoomType(jsonObject.get("roomType").getAsString());
             roomSummaryViewVO.setRentType(jsonObject.get("rentType").getAsString());
             roomSummaryViewVO.setArea(jsonObject.get("area").getAsDouble());
-            roomSummaryViewVO.setDeposit(jsonObject.get("deposit").getAsInt());
-            roomSummaryViewVO.setMonthlyCost(jsonObject.get("monthlyCost").getAsInt());
-            roomSummaryViewVO.setManageCost(jsonObject.get("manageCost").getAsInt());
+            roomSummaryViewVO.setDeposit(jsonObject.get("deposit").getAsString());
+            roomSummaryViewVO.setMonthlyCost(jsonObject.get("monthlyCost").getAsString());
+            roomSummaryViewVO.setManageCost(jsonObject.get("manageCost").getAsString());
             roomSummaryViewVO.setWriteDate(Date.valueOf(jsonObject.get("writeDate").getAsString()));
             roomSummaryViewVO.setViews(jsonObject.get("views").getAsInt());
             roomSummaryViewVO.setRoomImg(jsonObject.get("roomImg").getAsString());
@@ -767,8 +767,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     break;
             }
 
-            if (roomSummaryViewVO.getDeposit() > depositRange) {
-                continue;
+            String d = jsonObject.get("deposit").getAsString().replaceAll("[^0-9]", "");
+            if (!d.equals("")) {
+                if (Integer.parseInt(d) > depositRange) {
+                    continue;
+                }
             }
 
             int monthlyCostRange;
@@ -793,8 +796,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     break;
             }
 
-            if (roomSummaryViewVO.getMonthlyCost() > monthlyCostRange) {
-                continue;
+            String m = jsonObject.get("monthlyCost").getAsString().replaceAll("[^0-9]", "");
+            if (!m.equals("")) {
+                if (Integer.parseInt(m) > monthlyCostRange) {
+                    continue;
+                }
             }
 
             int periodNum = roomSummaryViewVO.getPeriodNum();
