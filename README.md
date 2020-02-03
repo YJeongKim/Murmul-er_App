@@ -2,16 +2,18 @@
 
 <br>
 
-### ▶ Murmul-er Web Version : https://github.com/YJeongKim/murmul-er
+#### Murmul-er Web Version : https://github.com/YJeongKim/murmul-er
 
 <br>
 
-### ▶ Murmul-er App
+### Murmul-er App
 
 - 머물러 회원을 위한 안드로이드 애플리케이션
+
 - 하이브리드 앱 방식
 
 - 방 매물 검색/상세정보 서비스 제공
+
 - 방 매물 관심목록 서비스 제공
 
 <p align="center">
